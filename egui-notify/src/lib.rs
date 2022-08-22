@@ -1,13 +1,31 @@
+#![doc = include_str!("../../README.md")]
+#![warn(missing_docs)]
+
 mod toast;
 pub use toast::*;
 mod anchor;
 pub use anchor::*;
 
 use egui::{Context, Vec2, vec2, LayerId, Order, Id, Color32, Rounding, FontId, Rect, Stroke};
+#[doc(hidden)]
+pub use egui::__run_test_ctx;
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
 
+/// Main notifications collector.
+/// # Usage
+/// You need to create [`Toasts`] once and call `.show(ctx)` in every frame.
+/// ```
+/// use egui_notify::Toasts;
+/// 
+/// # egui_notify::__run_test_ctx(|ctx| {
+/// let mut t = Toasts::default();
+/// t.info("Hello, World!", |t| t.with_duration(5.));
+/// // More app code
+/// t.show(ctx);
+/// # });
+/// ```
 pub struct Toasts {
     toasts: Vec<Toast>,
     anchor: Anchor,
@@ -21,6 +39,7 @@ pub struct Toasts {
 }
 
 impl Toasts {
+    /// Creates new [`Toasts`] instance.
     pub fn new() -> Self {
         Self {
             anchor: Anchor::BottomRight,
@@ -34,6 +53,9 @@ impl Toasts {
         }
     }
 
+    /// Adds new toast to the collection.
+    /// 
+    /// Toasts with `level` set to `error` will be inserted at the beggining.
     pub fn add(&mut self, toast: Toast) {
         if toast.level.is_error() {
             self.toasts.insert(0, toast);
@@ -42,38 +64,46 @@ impl Toasts {
         }
     }
 
+    /// Shortcut for adding a toast with info `level`.
     pub fn info(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
         self.add(cb(Toast::info(caption)));
     }
 
+    /// Shortcut for adding a toast with warning `level`.
     pub fn warning(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
         self.add(cb(Toast::warning(caption)));
     }
 
+    /// Shortcut for adding a toast with error `level`.
     pub fn error(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
         self.add(cb(Toast::error(caption)));
     }
 
+    /// Should toasts queue appear vertically?
     pub fn vertical(mut self, vertical: bool) -> Self {
         self.vertical = vertical;
         self
     }
 
+    /// Where toasts should appear.
     pub fn with_anchor(mut self, anchor: Anchor) -> Self {
         self.anchor = anchor;
         self
     }
 
+    /// Sets spacing between adjacent toasts.
     pub fn with_spacing(mut self, spacing: f32) -> Self {
         self.spacing = spacing;
         self
     }
 
+    /// Margin or distance from screen to toasts' bounding boxes
     pub fn with_margin(mut self, margin: Vec2) -> Self {
         self.margin = margin;
         self
     }
 
+    /// Padding or distance from toasts' bounding boxes to inner contents.
     pub fn with_padding(mut self, padding: Vec2) -> Self {
         self.padding = padding;
         self
@@ -81,6 +111,7 @@ impl Toasts {
 }
 
 impl Toasts {
+    /// Displays toast queue
     pub fn show(&mut self, ctx: &Context) {
         let Self {
             anchor,
@@ -104,9 +135,12 @@ impl Toasts {
             *held = false;
         }
 
+        let mut update = false;
+
         for (i,toast) in toasts.iter_mut().enumerate() {
             if let Some(d) = toast.duration.as_mut() && toast.state.idling() {
                 *d -= ctx.input().stable_dt;
+                update = true;
             }
 
             let icon_font = FontId::proportional(toast.height - padding.y * 2.);
@@ -191,6 +225,7 @@ impl Toasts {
 
             // Animations
             if toast.state.appearing() {
+                update = true;
                 toast.value += ctx.input().stable_dt * *speed;
                 
                 if toast.value >= 1. {
@@ -198,6 +233,10 @@ impl Toasts {
                     toast.state = ToastState::Idle;
                 }
             }
+        }
+
+        if update {
+            ctx.request_repaint();
         }
 
         if let Some(del) = remove {

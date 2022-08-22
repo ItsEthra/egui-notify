@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/ItsEthra/egui-notify"
+description = "Simple notifications library for EGUI"
+authors = ["ItsEthra"]
+readme = "README.md"
 
 [dependencies]
 egui = "0.19"

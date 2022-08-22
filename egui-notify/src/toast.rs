@@ -1,7 +1,9 @@
 use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
 use egui::{Rect, Pos2, pos2, vec2};
 
+/// Level of importance
 #[derive(Default)]
+#[allow(missing_docs)]
 pub enum ToastLevel {
     #[default]
     Info,
@@ -9,19 +11,20 @@ pub enum ToastLevel {
     Error
 }
 
+// Life is too short to write docs
 impl ToastLevel {
     #[inline]
-    pub fn is_info(&self) -> bool {
+    pub(crate) fn is_info(&self) -> bool {
         matches!(self, Self::Info)
     }
     
     #[inline]
-    pub fn is_warning(&self) -> bool {
+    pub(crate) fn is_warning(&self) -> bool {
         matches!(self, Self::Warning)
     }
 
     #[inline]
-    pub fn is_error(&self) -> bool {
+    pub(crate) fn is_error(&self) -> bool {
         matches!(self, Self::Error)
     }
 }
@@ -41,6 +44,7 @@ impl ToastState {
     }
 }
 
+/// Single notification or *toast*
 pub struct Toast {
     pub(crate) level: ToastLevel,
     pub(crate) caption: String,
@@ -71,35 +75,42 @@ impl Toast {
         }
     }
 
+    /// Creates new info toast, can be closed by default.
     pub fn info(caption: impl Into<String>) -> Self {
         Self::new(caption, ToastLevel::Info)
     }
 
+    /// Creates new warning toast, can be closed by default.
     pub fn warning(caption: impl Into<String>) -> Self {
         Self::new(caption, ToastLevel::Warning)
     }
 
+    /// Creates new error toast, can not be closed by default.
     pub fn error(caption: impl Into<String>) -> Self {
         Self::new(caption, ToastLevel::Error)
             .closable(false)
     }
 
+    /// Can use close the toast?
     pub fn closable(mut self, closable: bool) -> Self {
         self.closable = closable;
         self
     }
 
+    /// In what time should the toast expire?
     pub fn with_duration(mut self, seconds: f32) -> Self {
         self.initial_duration = Some(seconds);
         self.duration = Some(seconds);
         self
     }
 
+    /// Toast's box height
     pub fn with_height(mut self, height: f32) -> Self {
         self.height = height;
         self
     }
 
+    /// Toast's box width
     pub fn with_width(mut self, width: f32) -> Self {
         self.width = width;
         self

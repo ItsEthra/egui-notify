@@ -10,8 +10,6 @@ struct ExampleApp {
 
 impl App for ExampleApp {
     fn update(&mut self, ctx: &Context, _: &mut Frame) {
-        ctx.request_repaint();
-
         Window::new("Controls")
             .show(ctx, |ui| {
                 ui.text_edit_singleline(&mut self.caption);

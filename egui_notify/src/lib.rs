@@ -3,7 +3,7 @@ pub use toast::*;
 mod anchor;
 pub use anchor::*;
 
-use egui::{Context, Vec2, vec2, LayerId, Order, Id, Color32, Rounding, FontId, Rect};
+use egui::{Context, Vec2, vec2, LayerId, Order, Id, Color32, Rounding, FontId, Rect, Stroke};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -139,6 +139,13 @@ impl Toasts {
             
             let oy = ((toast.height - padding.y * 2.) - (caption_height - padding.y * 2.)) / 2.;
             p.galley(rect.min + vec2(padding.x + icon_width + 4., oy), caption_galley);
+
+            if let Some((current, initial)) = toast.duration.zip(toast.initial_duration) {
+                p.line_segment([
+                    rect.min + vec2(0., toast.height),
+                    rect.max - vec2((1. - (current / initial)) * toast.width, 0.)
+                ], Stroke::new(2., Color32::LIGHT_GRAY));
+            }
 
             if toast.closable {
                 let cross_fid = FontId::proportional(toast.height - padding.y * 2.);

@@ -36,12 +36,12 @@ pub struct Toast {
 }
 
 impl Toast {
-    pub fn new(caption: impl Into<String>, level: ToastLevel) -> Self {
+    fn new(caption: impl Into<String>, level: ToastLevel) -> Self {
         Self {
             caption: caption.into(),
             height: TOAST_HEIGHT,
             width: TOAST_WIDTH,
-            duration: None,
+            duration: Some(5.),
             closable: true,
             level,
         }
@@ -57,6 +57,7 @@ impl Toast {
 
     pub fn error(caption: impl Into<String>) -> Self {
         Self::new(caption, ToastLevel::Error)
+            .closable(false)
     }
 
     pub fn closable(mut self, closable: bool) -> Self {

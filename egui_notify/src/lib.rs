@@ -33,7 +33,23 @@ impl Toasts {
     }
 
     pub fn add(&mut self, toast: Toast) {
-        self.toasts.push(toast);
+        if toast.level.is_error() {
+            self.toasts.insert(0, toast);
+        } else {
+            self.toasts.push(toast);
+        }
+    }
+
+    pub fn info(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
+        self.add(cb(Toast::info(caption)));
+    }
+
+    pub fn warning(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
+        self.add(cb(Toast::warning(caption)));
+    }
+
+    pub fn error(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
+        self.add(cb(Toast::error(caption)));
     }
 
     pub fn vertical(mut self, vertical: bool) -> Self {

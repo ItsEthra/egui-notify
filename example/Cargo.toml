@@ -6,5 +6,5 @@ publish = false
 license = "MIT"
 
 [dependencies]
-egui_notify = { path = "../egui_notify" }
+egui-notify = { path = "../egui-notify" }
 eframe = "0.19"

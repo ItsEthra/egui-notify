@@ -1,11 +1,15 @@
 use egui::{Pos2, pos2, Vec2};
 
-
+/// Anchor where to show toasts
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Anchor {
+    /// Top right corner.
     TopRight,
+    /// Top left corner.
     TopLeft,
+    /// Bottom right corner.
     BottomRight,
+    /// Bottom left corner
     BottomLeft,
 }
 

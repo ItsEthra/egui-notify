@@ -74,21 +74,17 @@ impl Toasts {
 
         for toast in toasts.iter_mut() {
             let icon_font = FontId::proportional(toast.height - padding.y * 2.);
-            let icon_height = ctx.fonts().row_height(&icon_font);
-            let icon_width;
 
             let icon_galley = if toast.level.is_info() {
-                icon_width = ctx.fonts().glyph_width(&icon_font, 'ℹ');
-                ctx.fonts().layout("ℹ".into(), icon_font, Color32::LIGHT_BLUE, 0.)
+                ctx.fonts().layout("ℹ".into(), icon_font, Color32::LIGHT_BLUE, f32::INFINITY)
             } else if toast.level.is_warning() {
-                icon_width = ctx.fonts().glyph_width(&icon_font, '⚠');
-                ctx.fonts().layout("⚠".into(), icon_font, Color32::YELLOW, 0.)
+                ctx.fonts().layout("⚠".into(), icon_font, Color32::YELLOW, f32::INFINITY)
             } else if toast.level.is_error() {
-                icon_width = ctx.fonts().glyph_width(&icon_font, '！');
-                ctx.fonts().layout("！".into(), icon_font, Color32::RED, 0.)
+                ctx.fonts().layout("！".into(), icon_font, Color32::RED, f32::INFINITY)
             } else {
                 unreachable!()
             };
+            let (icon_width, icon_height) = (icon_galley.rect.width(), icon_galley.rect.height());
             
             let caption_galley = ctx.fonts().layout(
                 toast.caption.clone(),
@@ -96,19 +92,36 @@ impl Toasts {
                 Color32::LIGHT_GRAY,
                 f32::INFINITY
             );
-            let caption_height = ctx.fonts().row_height(&FontId::proportional(16.));
+            let caption_height = caption_galley.rect.height();
 
-            toast.width = toast.width.max(icon_galley.rect.width() + caption_galley.rect.width() + padding.x * 2. + icon_width);
+            toast.width = toast.width.max(icon_galley.rect.width() + caption_galley.rect.width() + padding.x * 2. + icon_width + 6.);
 
             let rect = toast.calc_anchored_rect(pos, *anchor);
 
             p.rect_filled(rect, Rounding::same(4.), Color32::from_rgb(30, 30, 30));
             
-            let offset = ((toast.height - padding.y * 2.) - (icon_height - padding.y * 2.)) / 2.;
-            p.galley(rect.min + vec2(padding.x, offset), icon_galley);
+            let oy = ((toast.height - padding.y * 2.) - (icon_height - padding.y * 2.)) / 2.;
+            p.galley(rect.min + vec2(padding.x, oy), icon_galley);
             
-            let offset = ((toast.height - padding.y * 2.) - (caption_height - padding.y * 2.)) / 2.;
-            p.galley(rect.min + vec2(padding.x + icon_width + 4., offset), caption_galley);
+            let oy = ((toast.height - padding.y * 2.) - (caption_height - padding.y * 2.)) / 2.;
+            p.galley(rect.min + vec2(padding.x + icon_width + 4., oy), caption_galley);
+
+            if toast.closable {
+                let cross_fid = FontId::proportional(toast.height - padding.y * 2.);
+                let cross_galley = ctx.fonts().layout(
+                    "❌".into(),
+                    cross_fid,
+                    Color32::GRAY,
+                    f32::INFINITY
+                );
+                let cross_width = cross_galley.rect.width();
+                let cross_height = cross_galley.rect.height();
+    
+                let oy = ((toast.height - padding.y * 2.) - (cross_height - padding.y * 2.)) / 2.;
+                let mut cross_pos = rect.min + vec2(0., oy);
+                cross_pos.x = rect.max.x - cross_width - padding.x;
+                p.galley(cross_pos, cross_galley);
+            }
 
             toast.adjust_next_pos(
                 &mut pos,

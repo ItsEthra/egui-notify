@@ -12,7 +12,7 @@ impl App for ExampleApp {
     fn update(&mut self, ctx: &Context, _: &mut Frame) {
         static ONCE: Once = Once::new();
         ONCE.call_once(|| {
-            self.toasts.add(Toast::info("Some info"));
+            self.toasts.add(Toast::info("Some info with very loooooong caption"));
             self.toasts.add(Toast::warning("Some warning"));
             self.toasts.add(Toast::error("Some error"));
         });

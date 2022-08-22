@@ -3,7 +3,7 @@ pub use toast::*;
 mod anchor;
 pub use anchor::*;
 
-use egui::{Context, Vec2, vec2, LayerId, Order, Id, Color32, Rounding, FontId, Rect, pos2};
+use egui::{Context, Vec2, vec2, LayerId, Order, Id, Color32, Rounding, FontId, Rect};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -15,6 +15,8 @@ pub struct Toasts {
     spacing: f32,
     vertical: bool,
     padding: Vec2,
+
+    held: bool,
 }
 
 impl Toasts {
@@ -26,6 +28,7 @@ impl Toasts {
             spacing: 8.,
             vertical: true,
             padding: vec2(4., 4.),
+            held: false,
         }
     }
 
@@ -66,6 +69,7 @@ impl Toasts {
             vertical,
             padding,
             toasts,
+            held,
         } = self;
 
         let mut pos = anchor.screen_corner(ctx.input().screen_rect.max, *margin);
@@ -73,7 +77,17 @@ impl Toasts {
 
         let mut remove = None;
 
+        toasts.retain(|t| t.duration.map(|d| d > 0.).unwrap_or(true));
+
+        if ctx.input().pointer.primary_released() {
+            *held = false;
+        }
+
         for (i,toast) in toasts.iter_mut().enumerate() {
+            if let Some(d) = toast.duration.as_mut() {
+                *d -= ctx.input().stable_dt;
+            }
+
             let icon_font = FontId::proportional(toast.height - padding.y * 2.);
 
             let icon_galley = if toast.level.is_info() {
@@ -129,8 +143,9 @@ impl Toasts {
                     min: cross_pos,
                 };
 
-                if let Some(pos) = ctx.input().pointer.press_origin() && screen_cross.contains(pos) {
+                if let Some(pos) = ctx.input().pointer.press_origin() && screen_cross.contains(pos) && !*held {
                     remove = Some(i);
+                    *held = true;
                 }
             }
 

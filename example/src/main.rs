@@ -1,13 +1,13 @@
 use std::sync::Once;
 
-use eframe::{App, egui::{Context, Style, Window}, Frame, NativeOptions};
+use eframe::{App, egui::{Context, Style, Window, Slider}, Frame, NativeOptions};
 use egui_notify::{Toasts, Toast};
 
-#[derive(Default)]
 struct ExampleApp {
     toasts: Toasts,
     caption: String,
     closable: bool,
+    duration: f32,
 }
 
 impl App for ExampleApp {
@@ -23,9 +23,13 @@ impl App for ExampleApp {
         Window::new("Controls")
             .show(ctx, |ui| {
                 ui.text_edit_singleline(&mut self.caption);
+                ui.horizontal(|ui| {
+                    ui.label("Duration (in s)");
+                    ui.add(Slider::new(&mut self.duration, 1.0..=10.0));
+                });
                 ui.checkbox(&mut self.closable, "Closable");
 
-                let cb = |t: Toast| t.closable(self.closable);
+                let cb = |t: Toast| t.closable(self.closable).with_duration(self.duration);
 
                 ui.horizontal(|ui| {
                     if ui.button("Info").clicked() {
@@ -52,7 +56,9 @@ fn main() {
 
         Box::new(ExampleApp {
             caption: "Hello!".into(),
-            ..Default::default()
+            toasts: Toasts::default(),
+            closable: true,
+            duration: 1.5,
         })
     }));
 }

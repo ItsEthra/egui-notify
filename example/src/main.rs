@@ -1,5 +1,3 @@
-use std::sync::Once;
-
 use eframe::{App, egui::{Context, Style, Window, Slider}, Frame, NativeOptions};
 use egui_notify::{Toasts, Toast};
 
@@ -13,14 +11,6 @@ struct ExampleApp {
 impl App for ExampleApp {
     fn update(&mut self, ctx: &Context, _: &mut Frame) {
         ctx.request_repaint();
-        
-        static ONCE: Once = Once::new();
-        ONCE.call_once(|| {
-            self.toasts.add(Toast::info("Some info with very loooooong caption"));
-            self.toasts.add(Toast::warning("Some warning"));
-            self.toasts.add(Toast::error("Some error"));
-        });
-
 
         Window::new("Controls")
             .show(ctx, |ui| {
@@ -57,10 +47,10 @@ fn main() {
         cc.egui_ctx.set_style(Style::default());
 
         Box::new(ExampleApp {
-            caption: "Hello!".into(),
+            caption: "Hello! It's caption".into(),
             toasts: Toasts::default(),
             closable: true,
-            duration: 1.5,
+            duration: 3.5,
         })
     }));
 }

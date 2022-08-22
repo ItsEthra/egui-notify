@@ -30,7 +30,7 @@ impl Toasts {
             vertical: true,
             padding: vec2(4., 4.),
             held: false,
-            speed: 1.,
+            speed: 4.,
         }
     }
 
@@ -105,7 +105,7 @@ impl Toasts {
         }
 
         for (i,toast) in toasts.iter_mut().enumerate() {
-            if let Some(d) = toast.duration.as_mut() && (toast.appearance - 1.).abs() < f32::EPSILON {
+            if let Some(d) = toast.duration.as_mut() && toast.state.idling() {
                 *d -= ctx.input().stable_dt;
             }
 
@@ -132,7 +132,7 @@ impl Toasts {
 
             toast.width = toast.width.max(icon_galley.rect.width() + caption_galley.rect.width() + padding.x * 2. + icon_width + 6.);
 
-            let anim_offset = toast.width * (1. - toast.appearance);
+            let anim_offset = toast.width * (1. - toast.value);
             pos.x += anim_offset;
             let rect = toast.calc_anchored_rect(pos, *anchor);
             pos.x -= anim_offset;
@@ -189,9 +189,14 @@ impl Toasts {
                 *spacing
             );
 
-            if toast.appearance < 1. {
-                toast.appearance += ctx.input().stable_dt * *speed;
-                toast.appearance = toast.appearance.min(1.);
+            // Animations
+            if toast.state.appearing() {
+                toast.value += ctx.input().stable_dt * *speed;
+                
+                if toast.value >= 1. {
+                    toast.value = 1.;
+                    toast.state = ToastState::Idle;
+                }
             }
         }
 

@@ -76,7 +76,9 @@ impl Toasts {
         self.padding = padding;
         self
     }
+}
 
+impl Toasts {
     pub fn show(&mut self, ctx: &Context) {
         let Self {
             anchor,
@@ -128,6 +130,7 @@ impl Toasts {
             toast.width = toast.width.max(icon_galley.rect.width() + caption_galley.rect.width() + padding.x * 2. + icon_width + 6.);
 
             let rect = toast.calc_anchored_rect(pos, *anchor);
+            let toast_hovered = ctx.input().pointer.hover_pos().map(|p| rect.contains(p)).unwrap_or(false);
 
             p.rect_filled(rect, Rounding::same(4.), Color32::from_rgb(30, 30, 30));
             
@@ -142,7 +145,7 @@ impl Toasts {
                 let cross_galley = ctx.fonts().layout(
                     "❌".into(),
                     cross_fid,
-                    Color32::GRAY,
+                    if toast_hovered { Color32::WHITE } else { Color32::GRAY },
                     f32::INFINITY
                 );
                 let cross_width = cross_galley.rect.width();

@@ -15,6 +15,7 @@ pub struct Toasts {
     spacing: f32,
     vertical: bool,
     padding: Vec2,
+    speed: f32,
 
     held: bool,
 }
@@ -29,6 +30,7 @@ impl Toasts {
             vertical: true,
             padding: vec2(4., 4.),
             held: false,
+            speed: 1.,
         }
     }
 
@@ -88,6 +90,7 @@ impl Toasts {
             padding,
             toasts,
             held,
+            speed,
         } = self;
 
         let mut pos = anchor.screen_corner(ctx.input().screen_rect.max, *margin);
@@ -102,7 +105,7 @@ impl Toasts {
         }
 
         for (i,toast) in toasts.iter_mut().enumerate() {
-            if let Some(d) = toast.duration.as_mut() {
+            if let Some(d) = toast.duration.as_mut() && (toast.appearance - 1.).abs() < f32::EPSILON {
                 *d -= ctx.input().stable_dt;
             }
 
@@ -129,7 +132,11 @@ impl Toasts {
 
             toast.width = toast.width.max(icon_galley.rect.width() + caption_galley.rect.width() + padding.x * 2. + icon_width + 6.);
 
+            let anim_offset = toast.width * (1. - toast.appearance);
+            pos.x += anim_offset;
             let rect = toast.calc_anchored_rect(pos, *anchor);
+            pos.x -= anim_offset;
+            
             let toast_hovered = ctx.input().pointer.hover_pos().map(|p| rect.contains(p)).unwrap_or(false);
 
             p.rect_filled(rect, Rounding::same(4.), Color32::from_rgb(30, 30, 30));
@@ -181,6 +188,11 @@ impl Toasts {
                 *vertical,
                 *spacing
             );
+
+            if toast.appearance < 1. {
+                toast.appearance += ctx.input().stable_dt * *speed;
+                toast.appearance = toast.appearance.min(1.);
+            }
         }
 
         if let Some(del) = remove {

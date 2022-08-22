@@ -1,7 +1,0 @@
-[package]
-name = "egui_notify"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-egui = "0.19"

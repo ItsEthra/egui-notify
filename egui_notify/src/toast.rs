@@ -34,6 +34,7 @@ pub struct Toast {
     pub(crate) height: f32,
     pub(crate) width: f32,
     pub(crate) closable: bool,
+    pub(crate) appearance: f32,
 }
 
 impl Toast {
@@ -44,6 +45,7 @@ impl Toast {
             height: TOAST_HEIGHT,
             width: TOAST_WIDTH,
             duration: Some(5.),
+            appearance: 0.,
             closable: true,
             level,
         }

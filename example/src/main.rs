@@ -12,6 +12,8 @@ struct ExampleApp {
 
 impl App for ExampleApp {
     fn update(&mut self, ctx: &Context, _: &mut Frame) {
+        ctx.request_repaint();
+        
         static ONCE: Once = Once::new();
         ONCE.call_once(|| {
             self.toasts.add(Toast::info("Some info with very loooooong caption"));

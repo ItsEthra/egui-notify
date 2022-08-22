@@ -3,7 +3,7 @@ pub use toast::*;
 mod anchor;
 pub use anchor::*;
 
-use egui::{Context, Vec2, vec2, LayerId, Order, Id, Color32, Rounding, FontId};
+use egui::{Context, Vec2, vec2, LayerId, Order, Id, Color32, Rounding, FontId, Rect, pos2};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -69,10 +69,11 @@ impl Toasts {
         } = self;
 
         let mut pos = anchor.screen_corner(ctx.input().screen_rect.max, *margin);
-
         let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
 
-        for toast in toasts.iter_mut() {
+        let mut remove = None;
+
+        for (i,toast) in toasts.iter_mut().enumerate() {
             let icon_font = FontId::proportional(toast.height - padding.y * 2.);
 
             let icon_galley = if toast.level.is_info() {
@@ -116,11 +117,21 @@ impl Toasts {
                 );
                 let cross_width = cross_galley.rect.width();
                 let cross_height = cross_galley.rect.height();
+                let cross_rect = cross_galley.rect;
     
                 let oy = ((toast.height - padding.y * 2.) - (cross_height - padding.y * 2.)) / 2.;
                 let mut cross_pos = rect.min + vec2(0., oy);
                 cross_pos.x = rect.max.x - cross_width - padding.x;
                 p.galley(cross_pos, cross_galley);
+
+                let screen_cross = Rect {
+                    max: cross_pos + cross_rect.max.to_vec2(),
+                    min: cross_pos,
+                };
+
+                if let Some(pos) = ctx.input().pointer.press_origin() && screen_cross.contains(pos) {
+                    remove = Some(i);
+                }
             }
 
             toast.adjust_next_pos(
@@ -129,6 +140,10 @@ impl Toasts {
                 *vertical,
                 *spacing
             );
+        }
+
+        if let Some(del) = remove {
+            self.toasts.remove(del);
         }
     }
 }

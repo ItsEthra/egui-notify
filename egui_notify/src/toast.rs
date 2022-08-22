@@ -32,7 +32,7 @@ pub struct Toast {
     pub(crate) duration: Option<u64>,
     pub(crate) height: f32,
     pub(crate) width: f32,
-    closable: bool,
+    pub(crate) closable: bool,
 }
 
 impl Toast {

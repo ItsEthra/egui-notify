@@ -30,6 +30,7 @@ pub struct Toast {
     pub(crate) level: ToastLevel,
     pub(crate) caption: String,
     pub(crate) duration: Option<f32>,
+    pub(crate) initial_duration: Option<f32>,
     pub(crate) height: f32,
     pub(crate) width: f32,
     pub(crate) closable: bool,
@@ -38,6 +39,7 @@ pub struct Toast {
 impl Toast {
     fn new(caption: impl Into<String>, level: ToastLevel) -> Self {
         Self {
+            initial_duration: Some(5.),
             caption: caption.into(),
             height: TOAST_HEIGHT,
             width: TOAST_WIDTH,
@@ -66,6 +68,7 @@ impl Toast {
     }
 
     pub fn with_duration(mut self, seconds: f32) -> Self {
+        self.initial_duration = Some(seconds);
         self.duration = Some(seconds);
         self
     }

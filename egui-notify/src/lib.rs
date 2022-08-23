@@ -36,6 +36,7 @@ pub struct Toasts {
     padding: Vec2,
     reverse: bool,
     speed: f32,
+    default_time: f32,
 
     held: bool,
 }
@@ -52,12 +53,18 @@ impl Toasts {
             held: false,
             speed: 4.,
             reverse: false,
+            default_time: 5.,
         }
     }
 
     /// Adds new toast to the collection.
     /// By default adds toast at the end of the list, can be changed with `self.reverse`.
-    pub fn add(&mut self, toast: Toast) {
+    pub fn add(&mut self, mut toast: Toast) {
+        if toast.expires && toast.duration.is_none() {
+            toast.initial_duration = Some(self.default_time);
+            toast.duration = Some(self.default_time);
+        }
+
         if self.reverse {
             self.toasts.insert(0, toast);
         } else {

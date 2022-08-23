@@ -2,7 +2,7 @@ use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
 use egui::{Rect, Pos2, pos2, vec2};
 
 /// Level of importance
-#[derive(Default)]
+#[derive(Default, Debug)]
 #[allow(missing_docs)]
 pub enum ToastLevel {
     #[default]
@@ -29,6 +29,7 @@ impl ToastLevel {
     }
 }
 
+#[derive(Debug)]
 pub(crate) enum ToastState {
     Appear,
     Idle,
@@ -45,9 +46,11 @@ impl ToastState {
 }
 
 /// Single notification or *toast*
+#[derive(Debug)]
 pub struct Toast {
     pub(crate) level: ToastLevel,
     pub(crate) caption: String,
+    pub(crate) expires: bool,
     pub(crate) duration: Option<f32>,
     pub(crate) initial_duration: Option<f32>,
     pub(crate) height: f32,
@@ -61,17 +64,18 @@ pub struct Toast {
 impl Toast {
     fn new(caption: impl Into<String>, level: ToastLevel) -> Self {
         Self {
-            initial_duration: Some(5.),
+            initial_duration: None,
             caption: caption.into(),
             height: TOAST_HEIGHT,
             width: TOAST_WIDTH,
-            duration: Some(5.),
+            duration: None,
             closable: true,
             level,
 
             
             value: 0.,
             state: ToastState::Appear,
+            expires: true,
         }
     }
 
@@ -99,8 +103,17 @@ impl Toast {
 
     /// In what time should the toast expire?
     pub fn with_duration(mut self, seconds: f32) -> Self {
+        assert!(seconds > 0.);
         self.initial_duration = Some(seconds);
         self.duration = Some(seconds);
+        self
+    }
+
+    /// Toast won't ever expire
+    pub fn no_expire(mut self) -> Self {
+        self.expires = false;
+        self.initial_duration = None;
+        self.duration = None;
         self
     }
 

@@ -33,8 +33,8 @@ pub struct Toasts {
     anchor: Anchor,
     margin: Vec2,
     spacing: f32,
-    vertical: bool,
     padding: Vec2,
+    reverse: bool,
     speed: f32,
 
     held: bool,
@@ -48,18 +48,17 @@ impl Toasts {
             margin: vec2(8., 8.),
             toasts: vec![],
             spacing: 8.,
-            vertical: true,
             padding: vec2(4., 4.),
             held: false,
             speed: 4.,
+            reverse: false,
         }
     }
 
     /// Adds new toast to the collection.
-    /// 
-    /// Toasts with `level` set to `error` will be inserted at the beggining.
+    /// By default adds toast at the end of the list, can be changed with `self.reverse`.
     pub fn add(&mut self, toast: Toast) {
-        if toast.level.is_error() {
+        if self.reverse {
             self.toasts.insert(0, toast);
         } else {
             self.toasts.push(toast);
@@ -81,9 +80,9 @@ impl Toasts {
         self.add(cb(Toast::error(caption)));
     }
 
-    /// Should toasts queue appear vertically?
-    pub fn vertical(mut self, vertical: bool) -> Self {
-        self.vertical = vertical;
+    /// Should toasts be added in reverse order?
+    pub fn reverse(mut self, reverse: bool) -> Self {
+        self.reverse = reverse;
         self
     }
 
@@ -119,11 +118,11 @@ impl Toasts {
             anchor,
             margin,
             spacing,
-            vertical,
             padding,
             toasts,
             held,
             speed,
+            ..
         } = self;
 
         let mut pos = anchor.screen_corner(ctx.input().screen_rect.max, *margin);
@@ -169,9 +168,9 @@ impl Toasts {
             toast.width = toast.width.max(icon_galley.rect.width() + caption_galley.rect.width() + padding.x * 2. + icon_width + 6.);
 
             let anim_offset = toast.width * (1. - toast.value);
-            pos.x += anim_offset;
+            pos.x += anim_offset * anchor.anim_side();
             let rect = toast.calc_anchored_rect(pos, *anchor);
-            pos.x -= anim_offset;
+            pos.x -= anim_offset * anchor.anim_side();
             
             let toast_hovered = ctx.input().pointer.hover_pos().map(|p| rect.contains(p)).unwrap_or(false);
 
@@ -221,7 +220,6 @@ impl Toasts {
             toast.adjust_next_pos(
                 &mut pos,
                 *anchor,
-                *vertical,
                 *spacing
             );
 

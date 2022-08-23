@@ -8,25 +8,8 @@ pub enum ToastLevel {
     #[default]
     Info,
     Warning,
-    Error
-}
-
-// Life is too short to write docs
-impl ToastLevel {
-    #[inline]
-    pub(crate) fn is_info(&self) -> bool {
-        matches!(self, Self::Info)
-    }
-    
-    #[inline]
-    pub(crate) fn is_warning(&self) -> bool {
-        matches!(self, Self::Warning)
-    }
-
-    #[inline]
-    pub(crate) fn is_error(&self) -> bool {
-        matches!(self, Self::Error)
-    }
+    Error,
+    Success
 }
 
 #[derive(Debug)]
@@ -75,6 +58,11 @@ impl Toast {
             state: ToastState::Appear,
             expires: true,
         }
+    }
+
+    /// Creates new success toast, can be closed by default.
+    pub fn success(caption: impl Into<String>) -> Self {
+        Self::new(caption, ToastLevel::Success)
     }
 
     /// Creates new info toast, can be closed by default.

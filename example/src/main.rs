@@ -19,7 +19,7 @@ impl App for ExampleApp {
                 });
                 ui.checkbox(&mut self.closable, "Closable");
 
-                let cb = |t: Toast| t.closable(self.closable).no_expire();
+                let cb = |t: Toast| t.closable(self.closable).with_duration(self.duration);
 
                 ui.horizontal(|ui| {
                     if ui.button("Info").clicked() {

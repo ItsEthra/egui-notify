@@ -141,15 +141,18 @@ impl Toasts {
 
         let mut remove = None;
 
+        // Remove expired toasts
         toasts.retain(|t| t.duration.map(|(_, d)| d > 0.).unwrap_or(true));
 
+        // `held` used to prevent sticky removal
         if ctx.input().pointer.primary_released() {
             *held = false;
         }
 
         let mut update = false;
 
-        for (i,toast) in toasts.iter_mut().enumerate() {
+        for (i, toast) in toasts.iter_mut().enumerate() {
+            // Decrease duration if idling
             if let Some((_, d)) = toast.duration.as_mut() && toast.state.idling() {
                 *d -= ctx.input().stable_dt;
                 update = true;
@@ -178,11 +181,13 @@ impl Toasts {
             );
             let caption_height = caption_galley.rect.height();
 
+            // Expand width if caption is too long
             toast.width = toast.width.max(icon_galley.rect.width() + caption_galley.rect.width() + padding.x * 2. + icon_width + 6.);
 
             let anim_offset = toast.width * (1. - toast.value);
             pos.x += anim_offset * anchor.anim_side();
             let rect = toast.calc_anchored_rect(pos, *anchor);
+            // Required due to positioning of the next toast
             pos.x -= anim_offset * anchor.anim_side();
             
             let toast_hovered = ctx.input().pointer.hover_pos().map(|p| rect.contains(p)).unwrap_or(false);
@@ -195,6 +200,7 @@ impl Toasts {
             let oy = ((toast.height - padding.y * 2.) - (caption_height - padding.y * 2.)) / 2.;
             p.galley(rect.min + vec2(padding.x + icon_width + 4., oy), caption_galley);
 
+            // Draw duration
             if let Some((initial, current)) = toast.duration {
                 p.line_segment([
                     rect.min + vec2(0., toast.height),
@@ -202,6 +208,7 @@ impl Toasts {
                 ], Stroke::new(2., Color32::LIGHT_GRAY));
             }
 
+            // Rrender cross
             if toast.closable {
                 let cross_fid = FontId::proportional(toast.height - padding.y * 2.);
                 let cross_galley = ctx.fonts().layout(

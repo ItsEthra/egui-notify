@@ -34,6 +34,7 @@ pub struct Toast {
     pub(crate) level: ToastLevel,
     pub(crate) caption: String,
     pub(crate) expires: bool,
+    // (initial, current)
     pub(crate) duration: Option<(f32, f32)>,
     pub(crate) height: f32,
     pub(crate) width: f32,

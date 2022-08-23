@@ -61,8 +61,7 @@ impl Toasts {
     /// By default adds toast at the end of the list, can be changed with `self.reverse`.
     pub fn add(&mut self, mut toast: Toast) {
         if toast.expires && toast.duration.is_none() {
-            toast.initial_duration = Some(self.default_time);
-            toast.duration = Some(self.default_time);
+            toast.duration = Some((self.default_time, self.default_time));
         }
 
         if self.reverse {
@@ -137,7 +136,7 @@ impl Toasts {
 
         let mut remove = None;
 
-        toasts.retain(|t| t.duration.map(|d| d > 0.).unwrap_or(true));
+        toasts.retain(|t| t.duration.map(|(_, d)| d > 0.).unwrap_or(true));
 
         if ctx.input().pointer.primary_released() {
             *held = false;
@@ -146,7 +145,7 @@ impl Toasts {
         let mut update = false;
 
         for (i,toast) in toasts.iter_mut().enumerate() {
-            if let Some(d) = toast.duration.as_mut() && toast.state.idling() {
+            if let Some((_, d)) = toast.duration.as_mut() && toast.state.idling() {
                 *d -= ctx.input().stable_dt;
                 update = true;
             }
@@ -189,7 +188,7 @@ impl Toasts {
             let oy = ((toast.height - padding.y * 2.) - (caption_height - padding.y * 2.)) / 2.;
             p.galley(rect.min + vec2(padding.x + icon_width + 4., oy), caption_galley);
 
-            if let Some((current, initial)) = toast.duration.zip(toast.initial_duration) {
+            if let Some((initial, current)) = toast.duration {
                 p.line_segment([
                     rect.min + vec2(0., toast.height),
                     rect.max - vec2((1. - (current / initial)) * toast.width, 0.)

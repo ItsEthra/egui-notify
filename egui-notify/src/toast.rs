@@ -139,16 +139,10 @@ impl Toast {
         }
     }
 
-    pub(crate) fn adjust_next_pos(&self, pos: &mut Pos2, anchor: Anchor, vertical: bool, spacing: f32) {
+    pub(crate) fn adjust_next_pos(&self, pos: &mut Pos2, anchor: Anchor, spacing: f32) {
         match anchor {
-            Anchor::TopRight | Anchor::TopLeft if vertical => pos.y += self.height + spacing,
-            Anchor::TopRight if !vertical => pos.x -= self.width + spacing,
-            Anchor::TopLeft if !vertical => pos.x += self.width + spacing,
-
-            Anchor::BottomRight | Anchor::BottomLeft if vertical => pos.y -= self.height + spacing,
-            Anchor::BottomRight if !vertical => pos.x -= self.width + spacing,
-            Anchor::BottomLeft if !vertical => pos.x += self.width + spacing,
-            _ => unreachable!()
+            Anchor::TopRight | Anchor::TopLeft => pos.y += self.height + spacing,
+            Anchor::BottomRight | Anchor::BottomLeft => pos.y -= self.height + spacing,
         }
     }
 }

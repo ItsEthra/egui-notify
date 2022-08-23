@@ -1,5 +1,5 @@
 use eframe::{App, egui::{Context, Style, Window, Slider}, Frame, NativeOptions};
-use egui_notify::{Toasts, Toast};
+use egui_notify::{Toasts, Toast, Anchor};
 
 struct ExampleApp {
     toasts: Toasts,
@@ -46,7 +46,8 @@ fn main() {
 
         Box::new(ExampleApp {
             caption: "Hello! It's caption".into(),
-            toasts: Toasts::default(),
+            toasts: Toasts::default()
+                .with_anchor(Anchor::TopRight),
             closable: true,
             duration: 3.5,
         })

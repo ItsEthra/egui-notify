@@ -14,6 +14,16 @@ pub enum Anchor {
 }
 
 impl Anchor {
+    #[inline]
+    pub(crate) fn anim_side(&self) -> f32 {
+        match self {
+            Anchor::TopRight | Anchor::BottomRight => 1.,
+            Anchor::TopLeft | Anchor::BottomLeft => -1.,
+        }
+    }
+}
+
+impl Anchor {
     pub(crate) fn screen_corner(&self, sc: Pos2, margin: Vec2) -> Pos2 {
         let mut out = match self {
             Anchor::TopRight => pos2(sc.x, 0.),

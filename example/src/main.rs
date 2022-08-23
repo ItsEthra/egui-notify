@@ -22,6 +22,10 @@ impl App for ExampleApp {
                 let cb = |t: Toast| t.closable(self.closable).with_duration(self.duration);
 
                 ui.horizontal(|ui| {
+                    if ui.button("Success").clicked() {
+                        self.toasts.success(self.caption.clone(), cb);
+                    }
+
                     if ui.button("Info").clicked() {
                         self.toasts.info(self.caption.clone(), cb);
                     }

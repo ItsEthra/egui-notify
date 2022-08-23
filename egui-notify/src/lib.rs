@@ -71,6 +71,11 @@ impl Toasts {
         }
     }
 
+    /// Shortcut for adding a toast with info `success`.
+    pub fn success(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
+        self.add(cb(Toast::success(caption)));
+    }
+
     /// Shortcut for adding a toast with info `level`.
     pub fn info(&mut self, caption: impl Into<String>, cb: impl FnOnce(Toast) -> Toast) {
         self.add(cb(Toast::info(caption)));
@@ -152,12 +157,14 @@ impl Toasts {
 
             let icon_font = FontId::proportional(toast.height - padding.y * 2.);
 
-            let icon_galley = if toast.level.is_info() {
+            let icon_galley = if matches!(toast.level, ToastLevel::Info) {
                 ctx.fonts().layout("ℹ".into(), icon_font, Color32::LIGHT_BLUE, f32::INFINITY)
-            } else if toast.level.is_warning() {
+            } else if matches!(toast.level, ToastLevel::Warning) {
                 ctx.fonts().layout("⚠".into(), icon_font, Color32::YELLOW, f32::INFINITY)
-            } else if toast.level.is_error() {
+            } else if matches!(toast.level, ToastLevel::Error) {
                 ctx.fonts().layout("！".into(), icon_font, Color32::RED, f32::INFINITY)
+            } else if matches!(toast.level, ToastLevel::Success) {
+                ctx.fonts().layout("✅".into(), icon_font, Color32::GREEN, f32::INFINITY)
             } else {
                 unreachable!()
             };

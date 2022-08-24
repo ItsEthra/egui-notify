@@ -15,6 +15,8 @@ pub enum ToastLevel {
 #[derive(Debug)]
 pub(crate) enum ToastState {
     Appear,
+    Disapper,
+    Disappeared,
     Idle,
 }
 
@@ -22,7 +24,12 @@ impl ToastState {
     pub fn appearing(&self) -> bool {
         matches!(self, Self::Appear)
     }
-
+    pub fn disappearing(&self) -> bool {
+        matches!(self, Self::Disapper)
+    }
+    pub fn disappeared(&self) -> bool {
+        matches!(self, Self::Disappeared)
+    }
     pub fn idling(&self) -> bool {
         matches!(self, Self::Idle)
     }

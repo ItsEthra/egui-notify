@@ -1,6 +1,4 @@
 use std::time::Duration;
-
-
 use eframe::{
     egui::{Context, Slider, Style, Window},
     App, Frame, NativeOptions,
@@ -26,7 +24,7 @@ impl App for ExampleApp {
 
             let cb = |t: &mut Toast| {
                 t.set_closable(self.closable)
-                    .set_duration(Duration::from_millis((1000. * self.duration) as u64));
+                    .set_duration(Some(Duration::from_millis((1000. * self.duration) as u64)));
             };
 
             ui.horizontal(|ui| {

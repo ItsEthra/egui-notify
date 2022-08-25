@@ -1,5 +1,4 @@
 use std::{fmt::Debug, time::Duration};
-
 use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
 use egui::{pos2, vec2, Pos2, Rect};
 
@@ -143,6 +142,20 @@ impl Toast {
             },
         )
     }
+    
+    /// Set the options with a ToastOptions
+    pub fn set_options(&mut self, options: ToastOptions) -> &mut Self {
+        self.set_closable(options.closable);
+        self.set_duration(options.duration);
+        self.set_level(options.level);
+        self
+    }
+
+    /// Change the level of the toast
+    pub fn set_level(&mut self, level: ToastLevel) -> &mut Self {
+        self.level = level;
+        self
+    }
 
     /// Can use close the toast?
     pub fn set_closable(&mut self, closable: bool) -> &mut Self {
@@ -150,10 +163,14 @@ impl Toast {
         self
     }
 
-    /// In what time should the toast expire?
-    pub fn set_duration(&mut self, duration: Duration) -> &mut Self {
-        let max_dur = duration_to_seconds_f32(duration);
-        self.duration = Some((max_dur, max_dur));
+    /// In what time should the toast expire? Set to `None` for no expiry.
+    pub fn set_duration(&mut self, duration: Option<Duration>) -> &mut Self {
+        if let Some(duration) = duration {
+            let max_dur = duration_to_seconds_f32(duration);
+            self.duration = Some((max_dur, max_dur));
+        } else {
+            self.duration = None;
+        }
         self
     }
 

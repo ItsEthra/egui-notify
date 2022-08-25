@@ -28,7 +28,7 @@ const SUCCESS_COLOR: Color32 = Color32::from_rgb(140, 230, 140);
 ///
 /// # egui_notify::__run_test_ctx(|ctx| {
 /// let mut t = Toasts::default();
-/// t.info("Hello, World!", |t| t.with_duration(5.));
+/// t.info("Hello, World!").set_duration(Duration::from_secs(5)).set_closable(true);
 /// // More app code
 /// t.show(ctx);
 /// # });

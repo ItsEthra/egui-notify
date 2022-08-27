@@ -15,5 +15,5 @@ t.show(ctx);
 # Installation
 ```toml
 [dependencies]
-egui-notify = "0.2"
+egui-notify = "0.3"
 ```

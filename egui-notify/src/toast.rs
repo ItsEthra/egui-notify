@@ -186,6 +186,11 @@ impl Toast {
         self
     }
 
+    /// Dismiss this toast
+    pub fn dismiss(&mut self) {
+        self.state = ToastState::Disapper;
+    }
+
     pub(crate) fn calc_anchored_rect(&self, pos: Pos2, anchor: Anchor) -> Rect {
         match anchor {
             Anchor::TopRight => Rect {

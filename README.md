@@ -3,7 +3,7 @@ Simple notifications library for [`egui`](https://github.com/emilk/egui)
 
 ![example_image](media/toasts_type.png)
 
-![example_video](media/toasts_example_video.mp4)
+![example_video](media/toasts_example_video.gif)
 # Usage
 ```rust
 use egui_notify::Toasts;

@@ -3,15 +3,20 @@ use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
 use egui::{pos2, vec2, Pos2, Rect};
 
 /// Level of importance
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[allow(missing_docs)]
 pub enum ToastLevel {
-    #[default]
     Info,
     Warning,
     Error,
     Success,
     None,
+}
+
+impl Default for ToastLevel {
+    fn default() -> Self {
+        ToastLevel::Info
+    }
 }
 
 #[derive(Debug)]

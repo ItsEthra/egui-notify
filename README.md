@@ -22,9 +22,8 @@ toasts.show(ctx);
 # Installation
 ```toml
 [dependencies]
-egui-notify = "0.2"
+egui-notify = "0.3"
 ```
-
 
 # Difference to [`egui-toast`](https://github.com/urholaukkarinen/egui-toast)
 ###  `egui-notify` has

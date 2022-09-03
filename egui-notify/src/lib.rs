@@ -47,9 +47,9 @@ pub struct Toasts {
 
 impl Toasts {
     /// Creates new [`Toasts`] instance.
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
-            anchor: Anchor::BottomRight,
+            anchor: Anchor::TopRight,
             margin: vec2(8., 8.),
             toasts: vec![],
             spacing: 8.,
@@ -120,31 +120,31 @@ impl Toasts {
     }
 
     /// Should toasts be added in reverse order?
-    pub fn reverse(mut self, reverse: bool) -> Self {
+    pub const fn reverse(mut self, reverse: bool) -> Self {
         self.reverse = reverse;
         self
     }
 
     /// Where toasts should appear.
-    pub fn with_anchor(mut self, anchor: Anchor) -> Self {
+    pub const fn with_anchor(mut self, anchor: Anchor) -> Self {
         self.anchor = anchor;
         self
     }
 
     /// Sets spacing between adjacent toasts.
-    pub fn with_spacing(mut self, spacing: f32) -> Self {
+    pub const fn with_spacing(mut self, spacing: f32) -> Self {
         self.spacing = spacing;
         self
     }
 
     /// Margin or distance from screen to toasts' bounding boxes
-    pub fn with_margin(mut self, margin: Vec2) -> Self {
+    pub const fn with_margin(mut self, margin: Vec2) -> Self {
         self.margin = margin;
         self
     }
 
     /// Padding or distance from toasts' bounding boxes to inner contents.
-    pub fn with_padding(mut self, padding: Vec2) -> Self {
+    pub const fn with_padding(mut self, padding: Vec2) -> Self {
         self.padding = padding;
         self
     }
@@ -167,7 +167,7 @@ impl Toasts {
         let mut pos = anchor.screen_corner(ctx.input().screen_rect.max, *margin);
         let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
 
-        let mut remove = None;
+        let mut dismiss = None;
 
         // Remove disappeared toasts
         toasts.retain(|t| !t.state.disappeared());
@@ -321,7 +321,7 @@ impl Toasts {
 
                 if let Some(pos) = ctx.input().pointer.press_origin() {
                     if screen_cross.contains(pos) && !*held {
-                        remove = Some(i);
+                        dismiss = Some(i);
                         *held = true;
                     }
                 }
@@ -365,8 +365,8 @@ impl Toasts {
             ctx.request_repaint();
         }
 
-        if let Some(del) = remove {
-            self.toasts.remove(del);
+        if let Some(i) = dismiss {
+            self.toasts[i].dismiss();
         }
     }
 }

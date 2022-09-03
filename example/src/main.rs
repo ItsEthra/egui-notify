@@ -2,7 +2,7 @@ use eframe::{
     egui::{Context, Slider, Style, Window},
     App, Frame, NativeOptions,
 };
-use egui_notify::{Anchor, Toast, Toasts};
+use egui_notify::{Toast, Toasts};
 use std::time::Duration;
 
 struct ExampleApp {
@@ -86,7 +86,7 @@ fn main() {
 
             Box::new(ExampleApp {
                 caption: "Hello! It's caption".into(),
-                toasts: Toasts::default().with_anchor(Anchor::TopRight),
+                toasts: Toasts::default(),
                 closable: true,
                 expires: true,
                 duration: 3.5,

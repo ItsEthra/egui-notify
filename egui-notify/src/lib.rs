@@ -82,7 +82,7 @@ impl Toasts {
 
     /// Dismisses the most recent toast
     pub fn dismiss_latest_toast(&mut self) {
-        if let Some(mut toast) = self.toasts.pop() {
+        if let Some(toast) = self.toasts.last_mut() {
             toast.dismiss();
         }
     }

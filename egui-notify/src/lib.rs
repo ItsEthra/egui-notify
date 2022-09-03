@@ -73,6 +73,27 @@ impl Toasts {
         }
     }
 
+    /// Dismisses the oldest toast
+    pub fn dismiss_oldest_toast(&mut self) {
+        if let Some(toast) = self.toasts.get_mut(0) {
+            toast.dismiss();
+        }
+    }
+
+    /// Dismisses the most recent toast
+    pub fn dismiss_latest_toast(&mut self) {
+        if let Some(mut toast) = self.toasts.pop() {
+            toast.dismiss();
+        }
+    }
+
+    /// Dismisses all toasts
+    pub fn dismiss_all_toasts(&mut self) {
+        for toast in self.toasts.iter_mut() {
+            toast.dismiss();
+        }
+    }
+
     /// Shortcut for adding a toast with info `success`.
     pub fn success(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::success(caption))

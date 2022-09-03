@@ -3,15 +3,20 @@ use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
 use egui::{pos2, vec2, Pos2, Rect};
 
 /// Level of importance
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[allow(missing_docs)]
 pub enum ToastLevel {
-    #[default]
     Info,
     Warning,
     Error,
     Success,
     None,
+}
+
+impl Default for ToastLevel {
+    fn default() -> Self {
+        ToastLevel::Info
+    }
 }
 
 #[derive(Debug)]
@@ -184,6 +189,11 @@ impl Toast {
     pub fn set_width(&mut self, width: f32) -> &mut Self {
         self.width = width;
         self
+    }
+
+    /// Dismiss this toast
+    pub fn dismiss(&mut self) {
+        self.state = ToastState::Disapper;
     }
 
     pub(crate) fn calc_anchored_rect(&self, pos: Pos2, anchor: Anchor) -> Rect {

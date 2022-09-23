@@ -210,7 +210,7 @@ impl Toasts {
 
 
             // Create toast icon
-            let icon_font = FontId::proportional(toast.height - padding.y * 2.);
+            let icon_font = FontId::proportional(caption_height);
             let icon_galley = if matches!(toast.level, ToastLevel::Info) {
                 Some(
                     ctx.fonts()
@@ -243,7 +243,7 @@ impl Toasts {
 
             // Create closing cross
             let cross_galley = if toast.closable {
-                let cross_fid = FontId::proportional(toast.height - padding.y * 2.);
+                let cross_fid = FontId::proportional(caption_height);
                 let cross_galley = ctx.fonts().layout(
                     "❌".into(),
                     cross_fid,

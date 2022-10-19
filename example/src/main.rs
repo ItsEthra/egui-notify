@@ -17,7 +17,7 @@ struct ExampleApp {
 impl App for ExampleApp {
     fn update(&mut self, ctx: &Context, _: &mut Frame) {
         Window::new("Controls").show(ctx, |ui| {
-            ui.text_edit_singleline(&mut self.caption);
+            ui.text_edit_multiline(&mut self.caption);
             ui.checkbox(&mut self.expires, "Expires");
             ui.checkbox(&mut self.closable, "Closable");
             if !(self.expires || self.closable) {
@@ -92,7 +92,10 @@ fn main() {
             cc.egui_ctx.set_fonts(font_def);
 
             Box::new(ExampleApp {
-                caption: "Hello! It's caption".into(),
+                caption: r#"Hello! It's a multiline caption
+Next line
+Another one
+And another one"#.into(),
                 toasts: Toasts::default(),
                 closable: true,
                 expires: true,

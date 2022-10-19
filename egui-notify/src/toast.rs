@@ -3,7 +3,7 @@ use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
 use egui::{pos2, vec2, Pos2, Rect};
 
 /// Level of importance
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum ToastLevel {
     Info,

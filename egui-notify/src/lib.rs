@@ -237,7 +237,7 @@ impl Toasts {
                 None
             };
 
-            let (icon_width, icon_height) = if let Some(icon_galley) = icon_galley.as_ref() {
+            let (action_width, action_height) = if let Some(icon_galley) = icon_galley.as_ref() {
                 (icon_galley.rect.width(), icon_galley.rect.height())
             } else {
                 (0., 0.)
@@ -282,7 +282,7 @@ impl Toasts {
             };
 
             toast.width = icon_width_padded + caption_width + cross_width_padded + (padding.x * 2.);
-            toast.height = icon_height.max(caption_height).max(cross_height) + padding.y * 2.;
+            toast.height = action_height.max(caption_height).max(cross_height) + padding.y * 2.;
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
             pos.x += anim_offset * anchor.anim_side();
@@ -295,15 +295,15 @@ impl Toasts {
             p.rect_filled(rect, Rounding::same(4.), Color32::from_rgb(30, 30, 30));
 
             // Paint icon
-            if let Some(icon_galley) = icon_galley {
-                let oy = toast.height / 2. - icon_height / 2.;
+            if let Some((icon_galley, true)) = icon_galley.zip(Some(toast.level != ToastLevel::None)) {
+                let oy = toast.height / 2. - action_height / 2.;
                 let ox = padding.x + icon_x_padding.0;
                 p.galley(rect.min + vec2(ox, oy), icon_galley);
             }
 
             // Paint caption
             let oy = toast.height / 2. - caption_height / 2.;
-            let o_from_icon = if icon_width == 0. { 0.} else {icon_width + icon_x_padding.1};
+            let o_from_icon = if action_width == 0. { 0.} else {action_width + icon_x_padding.1};
             let o_from_cross = if cross_width == 0. { 0.} else {cross_width + cross_x_padding.0};
             let ox = (toast.width / 2. - caption_width / 2.) + o_from_icon / 2. - o_from_cross / 2. ;
             p.galley(rect.min + vec2(ox, oy), caption_galley);

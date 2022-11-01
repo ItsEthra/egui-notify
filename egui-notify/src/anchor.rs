@@ -1,4 +1,4 @@
-use egui::{Pos2, pos2, Vec2};
+use egui::{pos2, Pos2, Vec2};
 
 /// Anchor where to show toasts
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -34,25 +34,25 @@ impl Anchor {
         self.apply_margin(&mut out, margin);
         out
     }
-    
+
     pub(crate) fn apply_margin(&self, pos: &mut Pos2, margin: Vec2) {
         match self {
             Anchor::TopRight => {
                 pos.x -= margin.x;
                 pos.y += margin.y;
-            },
+            }
             Anchor::TopLeft => {
                 pos.x += margin.x;
                 pos.y += margin.y
-            },
+            }
             Anchor::BottomRight => {
                 pos.x -= margin.x;
                 pos.y -= margin.y;
-            },
+            }
             Anchor::BottomLeft => {
                 pos.x += margin.x;
                 pos.y -= margin.y;
-            },
+            }
         }
     }
 }

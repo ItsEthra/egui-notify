@@ -1,6 +1,6 @@
-use std::{fmt::Debug, time::Duration};
 use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
 use egui::{pos2, vec2, Pos2, Rect};
+use std::{fmt::Debug, time::Duration};
 
 /// Level of importance
 #[derive(Debug, PartialEq, Eq)]
@@ -147,7 +147,7 @@ impl Toast {
             },
         )
     }
-    
+
     /// Set the options with a ToastOptions
     pub fn set_options(&mut self, options: ToastOptions) -> &mut Self {
         self.set_closable(options.closable);

@@ -1,6 +1,6 @@
-use eframe::egui::FontDefinitions;
+use eframe::egui::{FontDefinitions, Visuals};
 use eframe::{
-    egui::{Context, Slider, Style, Window},
+    egui::{Context, Slider, Window},
     App, Frame, NativeOptions,
 };
 use egui_notify::{Toast, Toasts};
@@ -83,8 +83,6 @@ fn main() {
         "example",
         NativeOptions::default(),
         Box::new(|cc| {
-            cc.egui_ctx.set_style(Style::default());
-
             let mut font_def = FontDefinitions::default();
             for data in font_def.font_data.values_mut() {
                 data.tweak.scale = 1.5;
@@ -95,7 +93,8 @@ fn main() {
                 caption: r#"Hello! It's a multiline caption
 Next line
 Another one
-And another one"#.into(),
+And another one"#
+                    .into(),
                 toasts: Toasts::default(),
                 closable: true,
                 expires: true,

@@ -1,8 +1,9 @@
-use eframe::egui::{FontDefinitions, Visuals};
+use eframe::egui::FontDefinitions;
 use eframe::{
     egui::{Context, Slider, Window},
     App, Frame, NativeOptions,
 };
+use egui::{Style, Visuals};
 use egui_notify::{Toast, Toasts};
 use std::time::Duration;
 
@@ -12,6 +13,7 @@ struct ExampleApp {
     closable: bool,
     expires: bool,
     duration: f32,
+    dark: bool,
 }
 
 impl App for ExampleApp {
@@ -72,6 +74,20 @@ impl App for ExampleApp {
             if ui.button("Dismiss oldest toast").clicked() {
                 self.toasts.dismiss_oldest_toast();
             }
+
+            ui.separator();
+
+            if ui.radio(self.dark, "Toggle dark theme").clicked() {
+                self.dark = !self.dark;
+
+                let mut style = ctx.style().as_ref().clone();
+                if self.dark {
+                    style.visuals = Visuals::dark();
+                } else {
+                    style.visuals = Visuals::light();
+                }
+                ctx.set_style(style);
+            }
         });
 
         self.toasts.show(ctx);
@@ -83,6 +99,8 @@ fn main() {
         "example",
         NativeOptions::default(),
         Box::new(|cc| {
+            cc.egui_ctx.set_style(Style::default());
+
             let mut font_def = FontDefinitions::default();
             for data in font_def.font_data.values_mut() {
                 data.tweak.scale = 1.5;
@@ -99,6 +117,7 @@ And another one"#
                 closable: true,
                 expires: true,
                 duration: 3.5,
+                dark: true,
             })
         }),
     );

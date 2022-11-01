@@ -436,6 +436,7 @@ dependencies = [
 name = "egui-notify"
 version = "0.4.3"
 dependencies = [
+ "eframe",
  "egui",
 ]
 
@@ -501,14 +502,6 @@ checksum = "64f18991e7bf11e7ffee451b5318b5c1a73c52d0d0ada6e5a3017c8c1ced6a21"
 dependencies = [
  "libc",
  "str-buf",
-]
-
-[[package]]
-name = "example"
-version = "0.1.0"
-dependencies = [
- "eframe",
- "egui-notify",
 ]
 
 [[package]]

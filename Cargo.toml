@@ -1,6 +1,6 @@
 [package]
 name = "egui-notify"
-version = "0.4.4"
+version = "0.5.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/ItsEthra/egui-notify"
@@ -12,7 +12,7 @@ readme = "README.md"
 path = "src/lib.rs"
 
 [dependencies]
-egui = "0.19"
+egui = "0.20"
 
 [dev-dependencies]
-eframe = "0.19"
+eframe = "0.20"

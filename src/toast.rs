@@ -3,7 +3,7 @@ use egui::{pos2, vec2, Pos2, Rect};
 use std::{fmt::Debug, time::Duration};
 
 /// Level of importance
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum ToastLevel {
     Info,

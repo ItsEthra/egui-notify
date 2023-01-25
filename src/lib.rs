@@ -164,7 +164,7 @@ impl Toasts {
             ..
         } = self;
 
-        let mut pos = anchor.screen_corner(ctx.input().screen_rect.max, *margin);
+        let mut pos = anchor.screen_corner(ctx.input(|i| i.screen_rect.max), *margin);
         let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
 
         let mut dismiss = None;
@@ -182,7 +182,7 @@ impl Toasts {
         });
 
         // `held` used to prevent sticky removal
-        if ctx.input().pointer.primary_released() {
+        if ctx.input(|i| i.pointer.primary_released()) {
             *held = false;
         }
 
@@ -193,18 +193,20 @@ impl Toasts {
             // Decrease duration if idling
             if let Some((_, d)) = toast.duration.as_mut() {
                 if toast.state.idling() {
-                    *d -= ctx.input().stable_dt;
+                    *d -= ctx.input(|i| i.stable_dt);
                     update = true;
                 }
             }
 
             // Create toast label
-            let caption_galley = ctx.fonts().layout(
-                toast.caption.clone(),
-                FontId::proportional(16.),
-                visuals.fg_stroke.color,
-                f32::INFINITY,
-            );
+            let caption_galley = ctx.fonts(|f| {
+                f.layout(
+                    toast.caption.clone(),
+                    FontId::proportional(16.),
+                    visuals.fg_stroke.color,
+                    f32::INFINITY,
+                )
+            });
 
             let (caption_width, caption_height) =
                 (caption_galley.rect.width(), caption_galley.rect.height());
@@ -215,25 +217,13 @@ impl Toasts {
             // Create toast icon
             let icon_font = FontId::proportional(icon_width);
             let icon_galley = if matches!(toast.level, ToastLevel::Info) {
-                Some(
-                    ctx.fonts()
-                        .layout("ℹ".into(), icon_font, INFO_COLOR, f32::INFINITY),
-                )
+                Some(ctx.fonts(|f| f.layout("ℹ".into(), icon_font, INFO_COLOR, f32::INFINITY)))
             } else if matches!(toast.level, ToastLevel::Warning) {
-                Some(
-                    ctx.fonts()
-                        .layout("⚠".into(), icon_font, WARNING_COLOR, f32::INFINITY),
-                )
+                Some(ctx.fonts(|f| f.layout("⚠".into(), icon_font, WARNING_COLOR, f32::INFINITY)))
             } else if matches!(toast.level, ToastLevel::Error) {
-                Some(
-                    ctx.fonts()
-                        .layout("！".into(), icon_font, ERROR_COLOR, f32::INFINITY),
-                )
+                Some(ctx.fonts(|f| f.layout("！".into(), icon_font, ERROR_COLOR, f32::INFINITY)))
             } else if matches!(toast.level, ToastLevel::Success) {
-                Some(
-                    ctx.fonts()
-                        .layout("✅".into(), icon_font, SUCCESS_COLOR, f32::INFINITY),
-                )
+                Some(ctx.fonts(|f| f.layout("✅".into(), icon_font, SUCCESS_COLOR, f32::INFINITY)))
             } else {
                 None
             };
@@ -247,12 +237,14 @@ impl Toasts {
             // Create closing cross
             let cross_galley = if toast.closable {
                 let cross_fid = FontId::proportional(icon_width);
-                let cross_galley = ctx.fonts().layout(
-                    "❌".into(),
-                    cross_fid,
-                    visuals.fg_stroke.color,
-                    f32::INFINITY,
-                );
+                let cross_galley = ctx.fonts(|f| {
+                    f.layout(
+                        "❌".into(),
+                        cross_fid,
+                        visuals.fg_stroke.color,
+                        f32::INFINITY,
+                    )
+                });
                 Some(cross_galley)
             } else {
                 None
@@ -328,7 +320,7 @@ impl Toasts {
                     min: cross_pos,
                 };
 
-                if let Some(pos) = ctx.input().pointer.press_origin() {
+                if let Some(pos) = ctx.input(|i| i.pointer.press_origin()) {
                     if screen_cross.contains(pos) && !*held {
                         dismiss = Some(i);
                         *held = true;
@@ -354,7 +346,7 @@ impl Toasts {
             // Animations
             if toast.state.appearing() {
                 update = true;
-                toast.value += ctx.input().stable_dt * (*speed);
+                toast.value += ctx.input(|i| i.stable_dt) * (*speed);
 
                 if toast.value >= 1. {
                     toast.value = 1.;
@@ -362,7 +354,7 @@ impl Toasts {
                 }
             } else if toast.state.disappearing() {
                 update = true;
-                toast.value -= ctx.input().stable_dt * (*speed);
+                toast.value -= ctx.input(|i| i.stable_dt) * (*speed);
 
                 if toast.value <= 0. {
                     toast.state = ToastState::Disappeared;

@@ -208,14 +208,15 @@ impl Toasts {
                 )
             });
 
-            let (caption_width, caption_height) =
-                (caption_galley.rect.width(), caption_galley.rect.height());
+            let caption_bbox = caption_galley.rect;
 
-            let line_count = toast.caption.chars().filter(|c| *c == '\n').count() + 1;
-            let icon_width = caption_height / line_count as f32;
+            let line_count = caption_galley.rows.len();
+            let icon_width = caption_bbox.height() / line_count as f32;
+
+            let icon_font = FontId::proportional(icon_width);
+            let icon_height = ctx.fonts(|f| f.row_height(&icon_font));
 
             // Create toast icon
-            let icon_font = FontId::proportional(icon_width);
             let icon_galley = if matches!(toast.level, ToastLevel::Info) {
                 Some(ctx.fonts(|f| f.layout("ℹ".into(), icon_font, INFO_COLOR, f32::INFINITY)))
             } else if matches!(toast.level, ToastLevel::Warning) {
@@ -229,14 +230,14 @@ impl Toasts {
             };
 
             let (action_width, action_height) = if let Some(icon_galley) = icon_galley.as_ref() {
-                (icon_galley.rect.width(), icon_galley.rect.height())
+                (icon_galley.rect.width(), icon_height)
             } else {
                 (0., 0.)
             };
 
             // Create closing cross
             let cross_galley = if toast.closable {
-                let cross_fid = FontId::proportional(icon_width);
+                let cross_fid = FontId::proportional(icon_height);
                 let cross_galley = ctx.fonts(|f| {
                     f.layout(
                         "❌".into(),
@@ -251,68 +252,75 @@ impl Toasts {
             };
 
             let (cross_width, cross_height) = if let Some(cross_galley) = cross_galley.as_ref() {
-                (cross_galley.rect.width(), cross_galley.rect.height())
+                (cross_galley.rect.width(), icon_height)
             } else {
                 (0., 0.)
             };
 
-            let icon_x_padding = (0., 7.);
-            let cross_x_padding = (7., 0.);
+            // Margin between toast border and cross or icon.
+            let margin_x = 4.;
 
-            let icon_width_padded = if icon_width == 0. {
-                0.
-            } else {
-                icon_width + icon_x_padding.0 + icon_x_padding.1
-            };
-            let cross_width_padded = if cross_width == 0. {
-                0.
-            } else {
-                cross_width + cross_x_padding.0 + cross_x_padding.1
-            };
+            // Margin between caption and cross or icon.
+            let caption_margin_x = 16.;
 
-            toast.width = icon_width_padded + caption_width + cross_width_padded + (padding.x * 2.);
-            toast.height = action_height.max(caption_height).max(cross_height) + padding.y * 2.;
+            let icon_padded = icon_galley
+                .as_ref()
+                .map(|_| margin_x + icon_width + caption_margin_x)
+                .unwrap_or(0.);
+            let cross_padded = cross_galley
+                .as_ref()
+                .map(|_| margin_x + cross_width + caption_margin_x)
+                .unwrap_or(0.);
+
+            toast.width = icon_padded + caption_bbox.width() + cross_padded + (padding.x * 2.);
+            toast.height =
+                action_height.max(caption_bbox.height()).max(cross_height) + padding.y * 2.;
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
             pos.x += anim_offset * anchor.anim_side();
-            let rect = toast.calc_anchored_rect(pos, *anchor);
+            let toast_rect = toast.calc_anchored_rect(pos, *anchor);
 
             // Required due to positioning of the next toast
             pos.x -= anim_offset * anchor.anim_side();
 
             // Draw background
-            p.rect_filled(rect, Rounding::same(4.), visuals.bg_fill);
+            p.rect_filled(toast_rect, Rounding::same(4.), visuals.bg_fill);
 
             // Paint icon
             if let Some((icon_galley, true)) =
                 icon_galley.zip(Some(toast.level != ToastLevel::None))
             {
                 let oy = toast.height / 2. - action_height / 2.;
-                let ox = padding.x + icon_x_padding.0;
-                p.galley(rect.min + vec2(ox, oy), icon_galley);
+                let ox = padding.x + margin_x;
+                p.galley(toast_rect.min + vec2(ox, oy), icon_galley);
             }
 
             // Paint caption
-            let oy = toast.height / 2. - caption_height / 2.;
-            let o_from_icon = if action_width == 0. {
-                0.
-            } else {
-                action_width + icon_x_padding.1
-            };
-            let o_from_cross = if cross_width == 0. {
-                0.
-            } else {
-                cross_width + cross_x_padding.0
-            };
-            let ox = (toast.width / 2. - caption_width / 2.) + o_from_icon / 2. - o_from_cross / 2.;
-            p.galley(rect.min + vec2(ox, oy), caption_galley);
+            {
+                let oy = toast.height / 2. - caption_bbox.height() / 2.;
+
+                let o_from_icon = if action_width == 0. {
+                    0.
+                } else {
+                    action_width + caption_margin_x
+                };
+                let o_from_cross = if cross_width == 0. {
+                    0.
+                } else {
+                    cross_width + caption_margin_x
+                };
+
+                let ox = (toast.width / 2. - caption_bbox.width() / 2.) + o_from_icon / 2.
+                    - o_from_cross / 2.;
+                p.galley(toast_rect.min + vec2(ox, oy), caption_galley);
+            }
 
             // Paint cross
             if let Some(cross_galley) = cross_galley {
                 let cross_rect = cross_galley.rect;
                 let oy = toast.height / 2. - cross_height / 2.;
-                let ox = toast.width - cross_width - cross_x_padding.1 - padding.x;
-                let cross_pos = rect.min + vec2(ox, oy);
+                let ox = toast.width - cross_width - margin_x - padding.x;
+                let cross_pos = toast_rect.min + vec2(ox, oy);
                 p.galley(cross_pos, cross_galley);
 
                 let screen_cross = Rect {
@@ -333,8 +341,8 @@ impl Toasts {
                 if !toast.state.disappearing() {
                     p.line_segment(
                         [
-                            rect.min + vec2(0., toast.height),
-                            rect.max - vec2((1. - (current / initial)) * toast.width, 0.),
+                            toast_rect.min + vec2(0., toast.height),
+                            toast_rect.max - vec2((1. - (current / initial)) * toast.width, 0.),
                         ],
                         Stroke::new(4., visuals.fg_stroke.color),
                     );

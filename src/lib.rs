@@ -10,7 +10,7 @@ pub use anchor::*;
 
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
-use egui::{vec2, Color32, Context, FontId, Id, LayerId, Order, Rect, Rounding, Stroke, Vec2};
+use egui::{vec2, Color32, Context, FontId, Id, LayerId, Order, Rounding, Stroke, Vec2};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -167,7 +167,7 @@ impl Toasts {
         let mut pos = anchor.screen_corner(ctx.input(|i| i.screen_rect.max), *margin);
         let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
 
-        let mut dismiss = None;
+        let dismiss = None::<usize>;
 
         // Remove disappeared toasts
         toasts.retain(|t| !t.state.disappeared());
@@ -189,7 +189,7 @@ impl Toasts {
         let visuals = ctx.style().visuals.widgets.noninteractive;
         let mut update = false;
 
-        for (i, toast) in toasts.iter_mut().enumerate() {
+        for (_i, toast) in toasts.iter_mut().enumerate() {
             // Decrease duration if idling
             if let Some((_, d)) = toast.duration.as_mut() {
                 if toast.state.idling() {
@@ -211,70 +211,16 @@ impl Toasts {
             let caption_bbox = caption_galley.rect;
 
             let line_count = caption_galley.rows.len();
-            let icon_width = caption_bbox.height() / line_count as f32;
-
-            let icon_font = FontId::proportional(icon_width);
-            let icon_height = ctx.fonts(|f| f.row_height(&icon_font));
-
-            // Create toast icon
-            let icon_galley = if matches!(toast.level, ToastLevel::Info) {
-                Some(ctx.fonts(|f| f.layout("ℹ".into(), icon_font, INFO_COLOR, f32::INFINITY)))
-            } else if matches!(toast.level, ToastLevel::Warning) {
-                Some(ctx.fonts(|f| f.layout("⚠".into(), icon_font, WARNING_COLOR, f32::INFINITY)))
-            } else if matches!(toast.level, ToastLevel::Error) {
-                Some(ctx.fonts(|f| f.layout("！".into(), icon_font, ERROR_COLOR, f32::INFINITY)))
-            } else if matches!(toast.level, ToastLevel::Success) {
-                Some(ctx.fonts(|f| f.layout("✅".into(), icon_font, SUCCESS_COLOR, f32::INFINITY)))
-            } else {
-                None
-            };
-
-            let (action_width, action_height) = if let Some(icon_galley) = icon_galley.as_ref() {
-                (icon_galley.rect.width(), icon_height)
-            } else {
-                (0., 0.)
-            };
-
-            // Create closing cross
-            let cross_galley = if toast.closable {
-                let cross_fid = FontId::proportional(icon_height);
-                let cross_galley = ctx.fonts(|f| {
-                    f.layout(
-                        "❌".into(),
-                        cross_fid,
-                        visuals.fg_stroke.color,
-                        f32::INFINITY,
-                    )
-                });
-                Some(cross_galley)
-            } else {
-                None
-            };
-
-            let (cross_width, cross_height) = if let Some(cross_galley) = cross_galley.as_ref() {
-                (cross_galley.rect.width(), icon_height)
-            } else {
-                (0., 0.)
-            };
+            let _icon_width = caption_bbox.height() / line_count as f32;
 
             // Margin between toast border and cross or icon.
-            let margin_x = 4.;
+            let _margin_x = 4.;
 
             // Margin between caption and cross or icon.
-            let caption_margin_x = 16.;
+            let _caption_margin_x = 16.;
 
-            let icon_padded = icon_galley
-                .as_ref()
-                .map(|_| margin_x + icon_width + caption_margin_x)
-                .unwrap_or(0.);
-            let cross_padded = cross_galley
-                .as_ref()
-                .map(|_| margin_x + cross_width + caption_margin_x)
-                .unwrap_or(0.);
-
-            toast.width = icon_padded + caption_bbox.width() + cross_padded + (padding.x * 2.);
-            toast.height =
-                action_height.max(caption_bbox.height()).max(cross_height) + padding.y * 2.;
+            toast.width = caption_bbox.width() + (padding.x * 2.);
+            toast.height = caption_bbox.height() + padding.y * 2.;
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
             pos.x += anim_offset * anchor.anim_side();
@@ -286,54 +232,12 @@ impl Toasts {
             // Draw background
             p.rect_filled(toast_rect, Rounding::same(4.), visuals.bg_fill);
 
-            // Paint icon
-            if let Some((icon_galley, true)) =
-                icon_galley.zip(Some(toast.level != ToastLevel::None))
-            {
-                let oy = toast.height / 2. - action_height / 2.;
-                let ox = padding.x + margin_x;
-                p.galley(toast_rect.min + vec2(ox, oy), icon_galley);
-            }
-
             // Paint caption
             {
-                let oy = toast.height / 2. - caption_bbox.height() / 2.;
+                let oy = (toast.height - caption_bbox.height()) / 2.;
+                let ox = (toast.width - caption_bbox.width()) / 2.;
 
-                let o_from_icon = if action_width == 0. {
-                    0.
-                } else {
-                    action_width + caption_margin_x
-                };
-                let o_from_cross = if cross_width == 0. {
-                    0.
-                } else {
-                    cross_width + caption_margin_x
-                };
-
-                let ox = (toast.width / 2. - caption_bbox.width() / 2.) + o_from_icon / 2.
-                    - o_from_cross / 2.;
                 p.galley(toast_rect.min + vec2(ox, oy), caption_galley);
-            }
-
-            // Paint cross
-            if let Some(cross_galley) = cross_galley {
-                let cross_rect = cross_galley.rect;
-                let oy = toast.height / 2. - cross_height / 2.;
-                let ox = toast.width - cross_width - margin_x - padding.x;
-                let cross_pos = toast_rect.min + vec2(ox, oy);
-                p.galley(cross_pos, cross_galley);
-
-                let screen_cross = Rect {
-                    max: cross_pos + cross_rect.max.to_vec2(),
-                    min: cross_pos,
-                };
-
-                if let Some(pos) = ctx.input(|i| i.pointer.press_origin()) {
-                    if screen_cross.contains(pos) && !*held {
-                        dismiss = Some(i);
-                        *held = true;
-                    }
-                }
             }
 
             // Draw duration

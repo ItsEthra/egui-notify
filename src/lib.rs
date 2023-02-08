@@ -10,7 +10,9 @@ pub use anchor::*;
 
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
-use egui::{vec2, Color32, Context, FontId, Id, LayerId, Order, Rect, Rounding, Stroke, Vec2};
+use egui::{
+    vec2, Color32, Context, FontId, Id, LayerId, Order, Painter, Pos2, Rect, Rounding, Stroke, Vec2,
+};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -242,15 +244,15 @@ impl Toasts {
                 p.galley(toast_rect.min + vec2(ox, oy), caption_galley);
             }
 
-            // Paint cross
-            {
+            // Paint cross if needed
+            if toast.closable {
                 let ox = padding.x + icon_padded_x + caption_bbox.width() + caption_margin_x;
                 let oy = (toast.height - icon_size) / 2.;
 
-                let cross_rect =
-                    Rect::from_min_size(toast_rect.min + vec2(ox, oy), Vec2::splat(icon_size));
+                let cross_size = Vec2::splat(icon_size);
+                let cross_pos = toast_rect.min + vec2(ox, oy);
 
-                p.rect_stroke(cross_rect, Rounding::none(), Stroke::new(2., Color32::RED));
+                draw_cross_at(&p, cross_pos, cross_size);
             }
 
             // Paint icon
@@ -316,4 +318,23 @@ impl Default for Toasts {
 
 fn ease_in_cubic(x: f32) -> f32 {
     1. - (1. - x).powi(3)
+}
+
+fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2) -> Rect {
+    let rect = Rect::from_min_size(pos, size);
+
+    const SHRINK_RATIO: f32 = 0.5;
+    let visible = rect.shrink((rect.width() * (1. - SHRINK_RATIO)) / 2.);
+
+    p.line_segment(
+        [visible.right_top(), visible.left_bottom()],
+        Stroke::new(6., Color32::GRAY),
+    );
+
+    p.line_segment(
+        [visible.left_top(), visible.right_bottom()],
+        Stroke::new(6., Color32::GRAY),
+    );
+
+    rect
 }

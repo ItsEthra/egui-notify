@@ -10,7 +10,7 @@ pub use anchor::*;
 
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
-use egui::{vec2, Color32, Context, FontId, Id, LayerId, Order, Rounding, Stroke, Vec2};
+use egui::{vec2, Color32, Context, FontId, Id, LayerId, Order, Rect, Rounding, Stroke, Vec2};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -211,15 +211,14 @@ impl Toasts {
             let caption_bbox = caption_galley.rect;
 
             let line_count = caption_galley.rows.len();
-            let _icon_width = caption_bbox.height() / line_count as f32;
-
-            // Margin between toast border and cross or icon.
-            let _margin_x = 4.;
+            let icon_size = caption_bbox.height() / line_count as f32 * 1.5;
 
             // Margin between caption and cross or icon.
-            let _caption_margin_x = 16.;
+            let caption_margin_x = 16.;
 
-            toast.width = caption_bbox.width() + (padding.x * 2.);
+            let cross_padded_x = caption_margin_x + icon_size;
+
+            toast.width = caption_bbox.width() + cross_padded_x + (padding.x * 2.);
             toast.height = caption_bbox.height() + padding.y * 2.;
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
@@ -235,9 +234,20 @@ impl Toasts {
             // Paint caption
             {
                 let oy = (toast.height - caption_bbox.height()) / 2.;
-                let ox = (toast.width - caption_bbox.width()) / 2.;
+                let ox = (toast.width - caption_bbox.width() - cross_padded_x) / 2.;
 
                 p.galley(toast_rect.min + vec2(ox, oy), caption_galley);
+            }
+
+            // Paint cross
+            {
+                let ox = padding.x + caption_bbox.width() + caption_margin_x;
+                let oy = (toast.height - icon_size) / 2.;
+
+                let cross_rect =
+                    Rect::from_min_size(toast_rect.min + vec2(ox, oy), Vec2::splat(icon_size));
+
+                p.rect_stroke(cross_rect, Rounding::none(), Stroke::new(2., Color32::RED));
             }
 
             // Draw duration

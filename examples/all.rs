@@ -103,7 +103,7 @@ fn main() -> eframe::Result<()> {
 
             let mut font_def = FontDefinitions::default();
             for data in font_def.font_data.values_mut() {
-                data.tweak.scale = 1.5;
+                data.tweak.scale = 1.25;
             }
             cc.egui_ctx.set_fonts(font_def);
 

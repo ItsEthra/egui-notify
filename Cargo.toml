@@ -12,11 +12,10 @@ readme = "README.md"
 path = "src/lib.rs"
 
 [dependencies]
-egui = "0.20"
+egui = { version = "0.21", default-features = false }
 
 [dev-dependencies]
-eframe = "0.20"
-
-
-[patch.crates-io]
-egui = { git = "https://github.com/emilk/egui", rev = "8ce0e1c5206780e76234842b94ceb0edf5bb8b75" } # egui master 2023-01-25 - DON'T MERGE THIS!
+eframe = { version = "0.21", default-features = false, features = [
+    "default_fonts",
+    "glow",
+] }

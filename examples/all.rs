@@ -94,7 +94,7 @@ impl App for ExampleApp {
     }
 }
 
-fn main() {
+fn main() -> eframe::Result<()> {
     eframe::run_native(
         "example",
         NativeOptions::default(),
@@ -120,5 +120,5 @@ And another one"#
                 dark: true,
             })
         }),
-    );
+    )
 }

@@ -211,14 +211,17 @@ impl Toasts {
             let caption_bbox = caption_galley.rect;
 
             let line_count = caption_galley.rows.len();
+            // Icon is the same size as cross so this value is used for both.
+            // it is the height and the width as icon and cross are just square aabbs.
             let icon_size = caption_bbox.height() / line_count as f32 * 1.5;
 
             // Margin between caption and cross or icon.
             let caption_margin_x = 16.;
 
+            let icon_padded_x = icon_size + caption_margin_x;
             let cross_padded_x = caption_margin_x + icon_size;
 
-            toast.width = caption_bbox.width() + cross_padded_x + (padding.x * 2.);
+            toast.width = icon_padded_x + caption_bbox.width() + cross_padded_x + (padding.x * 2.);
             toast.height = caption_bbox.height() + padding.y * 2.;
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
@@ -234,20 +237,31 @@ impl Toasts {
             // Paint caption
             {
                 let oy = (toast.height - caption_bbox.height()) / 2.;
-                let ox = (toast.width - caption_bbox.width() - cross_padded_x) / 2.;
+                let ox = icon_padded_x + padding.x;
 
                 p.galley(toast_rect.min + vec2(ox, oy), caption_galley);
             }
 
             // Paint cross
             {
-                let ox = padding.x + caption_bbox.width() + caption_margin_x;
+                let ox = padding.x + icon_padded_x + caption_bbox.width() + caption_margin_x;
                 let oy = (toast.height - icon_size) / 2.;
 
                 let cross_rect =
                     Rect::from_min_size(toast_rect.min + vec2(ox, oy), Vec2::splat(icon_size));
 
                 p.rect_stroke(cross_rect, Rounding::none(), Stroke::new(2., Color32::RED));
+            }
+
+            // Paint icon
+            {
+                let ox = padding.x;
+                let oy = (toast.height - icon_size) / 2.;
+
+                let icon_rect =
+                    Rect::from_min_size(toast_rect.min + vec2(ox, oy), Vec2::splat(icon_size));
+
+                p.rect_stroke(icon_rect, Rounding::none(), Stroke::new(2., Color32::RED));
             }
 
             // Draw duration

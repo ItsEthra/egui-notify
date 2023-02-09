@@ -180,7 +180,7 @@ impl Toasts {
         let mut pos = anchor.screen_corner(ctx.input(|i| i.screen_rect.max), *margin);
         let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
 
-        let dismiss = None::<usize>;
+        let mut dismiss = None::<usize>;
 
         // Remove disappeared toasts
         toasts.retain(|t| !t.state.disappeared());
@@ -263,7 +263,9 @@ impl Toasts {
                 let cross_size = Vec2::splat(icon_size);
                 let cross_pos = toast_rect.min + vec2(ox, oy);
 
-                draw_cross_at(&p, cross_pos, cross_size, i);
+                if draw_cross_at(&p, cross_pos, cross_size, i) {
+                    dismiss = Some(i);
+                }
             }
 
             // Paint icon
@@ -331,7 +333,7 @@ fn ease_in_cubic(x: f32) -> f32 {
     1. - (1. - x).powi(3)
 }
 
-fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2, i: usize) -> Rect {
+fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2, i: usize) -> bool {
     let rect = Rect::from_min_size(pos, size);
 
     let hovered = p
@@ -358,5 +360,12 @@ fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2, i: usize) -> Rect {
         Stroke::new(8. * shrink_ratio, Color32::GRAY),
     );
 
-    rect
+    p.ctx()
+        .input(|i| {
+            i.pointer
+                .interact_pos()
+                .map(|p| (p, i.pointer.primary_clicked()))
+        })
+        .map(|(p, c)| rect.contains(p) && c)
+        .unwrap_or(false)
 }

@@ -226,12 +226,16 @@ impl Toasts {
             let line_count = caption_galley.rows.len();
             // Icon is the same size as cross so this value is used for both.
             // it is the height and the width as icon and cross are just square aabbs.
-            let icon_size = caption_bbox.height() / line_count as f32 * 1.5;
+            let icon_size = caption_bbox.height() / line_count as f32 * 1.4;
 
             // Margin between caption and cross or icon.
             let caption_margin_x = 16.;
 
-            let icon_padded_x = icon_size + caption_margin_x;
+            let icon_padded_x = if toast.level == ToastLevel::None {
+                0.
+            } else {
+                icon_size + caption_margin_x
+            };
             let cross_padded_x = caption_margin_x + icon_size;
 
             toast.width = icon_padded_x + caption_bbox.width() + cross_padded_x + (padding.x * 2.);
@@ -269,7 +273,7 @@ impl Toasts {
             }
 
             // Paint icon
-            {
+            if toast.level != ToastLevel::None {
                 let ox = padding.x;
                 let oy = (toast.height - icon_size) / 2.;
 
@@ -386,13 +390,13 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
             let width = 3.;
 
             let mut center = rect.center_bottom();
-            center.y -= width / 2. + 6.;
+            center.y -= width / 2. + 4.;
 
             p.circle_filled(center, width / 2., INFO_COLOR);
 
             let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 0.));
-            *line.top_mut() += 4.;
-            *line.bottom_mut() -= width + 10.;
+            *line.top_mut() += 3.;
+            *line.bottom_mut() -= width + 7.;
 
             p.rect_filled(line, Rounding::same(width), INFO_COLOR);
         }
@@ -408,13 +412,13 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
             let width = 3.;
 
             let mut center = rect.center_bottom();
-            center.y -= width / 2. + 6.;
+            center.y -= width / 2. + 3.;
 
             p.circle_filled(center, width / 2., WARNING_COLOR);
 
             let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 4.));
-            *line.top_mut() += 6.;
-            *line.bottom_mut() -= width + 6.;
+            *line.top_mut() += 3.;
+            *line.bottom_mut() -= width + 2.;
 
             p.rect_filled(line, Rounding::same(width), WARNING_COLOR);
         }
@@ -443,7 +447,7 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
 
             // Draw exclamation mark
             let width = 3.;
-            let rect = rect.shrink(6.);
+            let rect = rect.shrink(4.);
 
             let mut center = rect.center_bottom();
             center.y -= width / 2.;
@@ -451,7 +455,7 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
             p.circle_filled(center, width / 2., ERROR_COLOR);
 
             let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 0.));
-            *line.bottom_mut() -= width + 4.;
+            *line.bottom_mut() -= width + 3.;
 
             p.rect_filled(line, Rounding::same(width), ERROR_COLOR);
         }

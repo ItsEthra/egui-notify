@@ -273,10 +273,10 @@ impl Toasts {
                 let ox = padding.x;
                 let oy = (toast.height - icon_size) / 2.;
 
-                let icon_rect =
-                    Rect::from_min_size(toast_rect.min + vec2(ox, oy), Vec2::splat(icon_size));
+                let icon_size = Vec2::splat(icon_size);
+                let icon_pos = toast_rect.min + vec2(ox, oy);
 
-                p.rect_stroke(icon_rect, Rounding::none(), Stroke::new(2., Color32::RED));
+                draw_icon_at(&p, icon_pos, icon_size, toast.level);
             }
 
             // Draw duration
@@ -341,9 +341,9 @@ fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2, i: usize) -> bool {
         .input(|i| i.pointer.hover_pos())
         .map(|p| rect.contains(p))
         .unwrap_or(false);
-    let delta = p
-        .ctx()
-        .animate_bool_with_time(Id::new("_libtoast").with(i), hovered, 0.065);
+    let delta =
+        p.ctx()
+            .animate_bool_with_time(Id::new("_libtoast").with("cross").with(i), hovered, 0.065);
 
     let mut shrink_ratio = 0.6;
     shrink_ratio *= lerp(1.0..=1.25, delta);
@@ -368,4 +368,46 @@ fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2, i: usize) -> bool {
         })
         .map(|(p, c)| rect.contains(p) && c)
         .unwrap_or(false)
+}
+
+fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
+    let rect = Rect::from_min_size(pos, size);
+
+    match level {
+        ToastLevel::Info => {
+            let width = 7.;
+
+            let mut center = rect.center_bottom();
+            center.y -= width / 2.;
+
+            p.circle_filled(center, width / 2., INFO_COLOR);
+
+            let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 0.));
+            *line.bottom_mut() -= width + 6.;
+
+            p.rect_filled(line, Rounding::same(width), INFO_COLOR);
+        }
+        ToastLevel::Warning => {
+            let (p1, p2, p3) = (rect.left_bottom(), rect.center_top(), rect.right_bottom());
+
+            p.line_segment([p1, p2], Stroke::new(2., WARNING_COLOR));
+            p.line_segment([p2, p3], Stroke::new(2., WARNING_COLOR));
+            p.line_segment([p3, p1], Stroke::new(2., WARNING_COLOR));
+
+            let width = 3.;
+
+            let mut center = rect.center_bottom();
+            center.y -= width / 2.;
+
+            p.circle_filled(center, width / 2., INFO_COLOR);
+
+            let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 0.));
+            *line.bottom_mut() -= width + 6.;
+
+            p.rect_filled(line, Rounding::same(width), WARNING_COLOR);
+        }
+        ToastLevel::Error => todo!(),
+        ToastLevel::Success => todo!(),
+        ToastLevel::None => todo!(),
+    }
 }

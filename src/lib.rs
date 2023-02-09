@@ -11,7 +11,7 @@ pub use anchor::*;
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
 use egui::{
-    lerp, pos2, vec2, Color32, Context, FontId, Id, LayerId, Order, Painter, Pos2, Rect, Rounding,
+    lerp, vec2, Color32, Context, FontId, Id, LayerId, Order, Painter, Pos2, Rect, Rounding,
     Stroke, Vec2,
 };
 use std::hash::Hash;
@@ -226,7 +226,7 @@ impl Toasts {
             let line_count = caption_galley.rows.len();
             // Icon is the same size as cross so this value is used for both.
             // it is the height and the width as icon and cross are just square aabbs.
-            let icon_size = caption_bbox.height() / line_count as f32 * 1.75;
+            let icon_size = caption_bbox.height() / line_count as f32 * 1.5;
 
             // Margin between caption and cross or icon.
             let caption_margin_x = 16.;
@@ -375,15 +375,24 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
 
     match level {
         ToastLevel::Info => {
-            let width = 5.;
+            // Draw circle
+            p.circle_stroke(
+                rect.center(),
+                rect.width() / 2.,
+                Stroke::new(2., INFO_COLOR),
+            );
+
+            // Draw excalmation mark
+            let width = 3.;
 
             let mut center = rect.center_bottom();
-            center.y -= width / 2.;
+            center.y -= width / 2. + 6.;
 
             p.circle_filled(center, width / 2., INFO_COLOR);
 
             let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 0.));
-            *line.bottom_mut() -= width + 6.;
+            *line.top_mut() += 4.;
+            *line.bottom_mut() -= width + 10.;
 
             p.rect_filled(line, Rounding::same(width), INFO_COLOR);
         }
@@ -446,7 +455,24 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
 
             p.rect_filled(line, Rounding::same(width), ERROR_COLOR);
         }
-        ToastLevel::Success => todo!(),
-        ToastLevel::None => todo!(),
+        ToastLevel::Success => {
+            let radius = rect.width() / 2.;
+
+            let (p1, p2, p3) = (
+                rect.left_center() - vec2(0., radius / 4.),
+                rect.center() + vec2(-radius / 3., radius / 3.),
+                rect.right_top(),
+            );
+
+            p.line_segment(
+                [p1 + vec2(0., 5.), p2 + vec2(0., 5.)],
+                Stroke::new(2., SUCCESS_COLOR),
+            );
+            p.line_segment(
+                [p2 + vec2(0., 5.), p3 + vec2(0., 5.)],
+                Stroke::new(2., SUCCESS_COLOR),
+            );
+        }
+        _ => unimplemented!(),
     }
 }

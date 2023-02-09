@@ -11,8 +11,10 @@ pub use anchor::*;
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
 use egui::{
-    vec2, Color32, Context, FontId, Id, LayerId, Order, Painter, Pos2, Rect, Rounding, Stroke, Vec2,
+    lerp, vec2, Color32, Context, FontId, Id, LayerId, Order, Painter, Pos2, Rect, Rounding,
+    Stroke, Vec2,
 };
+use std::hash::Hash;
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -43,6 +45,7 @@ pub struct Toasts {
     padding: Vec2,
     reverse: bool,
     speed: f32,
+    id: Id,
 
     held: bool,
 }
@@ -59,7 +62,15 @@ impl Toasts {
             held: false,
             speed: 4.,
             reverse: false,
+            // Can't create Id at constant time.
+            id: unsafe { std::mem::transmute::<[u8; 8], _>([1, 2, 3, 4, 9, 8, 7, 6]) },
         }
+    }
+
+    /// Changes id source of the toasts instance.
+    pub fn with_id_source(mut self, id_source: impl Hash) -> Self {
+        self.id = Id::new(id_source);
+        self
     }
 
     /// Adds new toast to the collection.
@@ -191,7 +202,7 @@ impl Toasts {
         let visuals = ctx.style().visuals.widgets.noninteractive;
         let mut update = false;
 
-        for (_i, toast) in toasts.iter_mut().enumerate() {
+        for (i, toast) in toasts.iter_mut().enumerate() {
             // Decrease duration if idling
             if let Some((_, d)) = toast.duration.as_mut() {
                 if toast.state.idling() {
@@ -252,7 +263,7 @@ impl Toasts {
                 let cross_size = Vec2::splat(icon_size);
                 let cross_pos = toast_rect.min + vec2(ox, oy);
 
-                draw_cross_at(&p, cross_pos, cross_size);
+                draw_cross_at(&p, cross_pos, cross_size, i);
             }
 
             // Paint icon
@@ -320,20 +331,31 @@ fn ease_in_cubic(x: f32) -> f32 {
     1. - (1. - x).powi(3)
 }
 
-fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2) -> Rect {
+fn draw_cross_at(p: &Painter, pos: Pos2, size: Vec2, i: usize) -> Rect {
     let rect = Rect::from_min_size(pos, size);
 
-    const SHRINK_RATIO: f32 = 0.5;
-    let visible = rect.shrink((rect.width() * (1. - SHRINK_RATIO)) / 2.);
+    let hovered = p
+        .ctx()
+        .input(|i| i.pointer.hover_pos())
+        .map(|p| rect.contains(p))
+        .unwrap_or(false);
+    let delta = p
+        .ctx()
+        .animate_bool_with_time(Id::new("_libtoast").with(i), hovered, 0.065);
+
+    let mut shrink_ratio = 0.6;
+    shrink_ratio *= lerp(1.0..=1.25, delta);
+
+    let visible = rect.shrink((rect.width() * (1. - shrink_ratio)) / 2.);
 
     p.line_segment(
         [visible.right_top(), visible.left_bottom()],
-        Stroke::new(6., Color32::GRAY),
+        Stroke::new(8. * shrink_ratio, Color32::GRAY),
     );
 
     p.line_segment(
         [visible.left_top(), visible.right_bottom()],
-        Stroke::new(6., Color32::GRAY),
+        Stroke::new(8. * shrink_ratio, Color32::GRAY),
     );
 
     rect

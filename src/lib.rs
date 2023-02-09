@@ -11,7 +11,7 @@ pub use anchor::*;
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
 use egui::{
-    lerp, vec2, Color32, Context, FontId, Id, LayerId, Order, Painter, Pos2, Rect, Rounding,
+    lerp, pos2, vec2, Color32, Context, FontId, Id, LayerId, Order, Painter, Pos2, Rect, Rounding,
     Stroke, Vec2,
 };
 use std::hash::Hash;
@@ -226,7 +226,7 @@ impl Toasts {
             let line_count = caption_galley.rows.len();
             // Icon is the same size as cross so this value is used for both.
             // it is the height and the width as icon and cross are just square aabbs.
-            let icon_size = caption_bbox.height() / line_count as f32 * 1.5;
+            let icon_size = caption_bbox.height() / line_count as f32 * 1.75;
 
             // Margin between caption and cross or icon.
             let caption_margin_x = 16.;
@@ -375,7 +375,7 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
 
     match level {
         ToastLevel::Info => {
-            let width = 7.;
+            let width = 5.;
 
             let mut center = rect.center_bottom();
             center.y -= width / 2.;
@@ -388,25 +388,64 @@ fn draw_icon_at(p: &Painter, pos: Pos2, size: Vec2, level: ToastLevel) {
             p.rect_filled(line, Rounding::same(width), INFO_COLOR);
         }
         ToastLevel::Warning => {
+            // Draw triangle
             let (p1, p2, p3) = (rect.left_bottom(), rect.center_top(), rect.right_bottom());
 
             p.line_segment([p1, p2], Stroke::new(2., WARNING_COLOR));
             p.line_segment([p2, p3], Stroke::new(2., WARNING_COLOR));
             p.line_segment([p3, p1], Stroke::new(2., WARNING_COLOR));
 
+            // Draw exclamation mark
             let width = 3.;
 
             let mut center = rect.center_bottom();
-            center.y -= width / 2.;
+            center.y -= width / 2. + 6.;
 
-            p.circle_filled(center, width / 2., INFO_COLOR);
+            p.circle_filled(center, width / 2., WARNING_COLOR);
 
-            let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 0.));
+            let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 4.));
+            *line.top_mut() += 6.;
             *line.bottom_mut() -= width + 6.;
 
             p.rect_filled(line, Rounding::same(width), WARNING_COLOR);
         }
-        ToastLevel::Error => todo!(),
+        ToastLevel::Error => {
+            // Draw octogon
+            let third = 1. / 3.;
+
+            #[rustfmt::skip]
+            let points = [
+                vec2(1., -third), vec2(1., third),
+                vec2(third, 1.), vec2(-third, 1.),
+                vec2(-1., third), vec2(-1., -third),
+                vec2(-third, -1.), vec2(third, -1.),
+                vec2(1., -third),
+            ];
+
+            let radius = rect.width() / 2.;
+            let center = rect.center();
+
+            points.windows(2).for_each(|points| {
+                p.line_segment(
+                    [center + points[0] * radius, center + points[1] * radius],
+                    Stroke::new(2., ERROR_COLOR),
+                );
+            });
+
+            // Draw exclamation mark
+            let width = 3.;
+            let rect = rect.shrink(6.);
+
+            let mut center = rect.center_bottom();
+            center.y -= width / 2.;
+
+            p.circle_filled(center, width / 2., ERROR_COLOR);
+
+            let mut line = rect.shrink2(vec2((rect.width() - width) / 2., 0.));
+            *line.bottom_mut() -= width + 4.;
+
+            p.rect_filled(line, Rounding::same(width), ERROR_COLOR);
+        }
         ToastLevel::Success => todo!(),
         ToastLevel::None => todo!(),
     }

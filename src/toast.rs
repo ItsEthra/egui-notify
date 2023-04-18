@@ -60,7 +60,7 @@ pub struct Toast {
     pub(crate) height: f32,
     pub(crate) width: f32,
     pub(crate) closable: bool,
-    pub (crate) show_progress_bar: bool,
+    pub(crate) show_progress_bar: bool,
 
     pub(crate) state: ToastState,
     pub(crate) value: f32,
@@ -172,7 +172,7 @@ impl Toast {
         self
     }
 
-    /// Can show progress bar?
+    /// Should a progress bar be shown?
     pub fn set_show_progress_bar(&mut self, show_progress_bar: bool) -> &mut Self {
         self.show_progress_bar = show_progress_bar;
         self

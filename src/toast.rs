@@ -47,6 +47,7 @@ pub struct ToastOptions {
     duration: Option<Duration>,
     level: ToastLevel,
     closable: bool,
+    show_progress_bar: bool,
 }
 
 /// Single notification or *toast*
@@ -59,6 +60,7 @@ pub struct Toast {
     pub(crate) height: f32,
     pub(crate) width: f32,
     pub(crate) closable: bool,
+    pub (crate) show_progress_bar: bool,
 
     pub(crate) state: ToastState,
     pub(crate) value: f32,
@@ -70,6 +72,7 @@ impl Default for ToastOptions {
             duration: Some(Duration::from_millis(3500)),
             level: ToastLevel::None,
             closable: true,
+            show_progress_bar: true,
         }
     }
 }
@@ -91,6 +94,7 @@ impl Toast {
                 None
             },
             closable: options.closable,
+            show_progress_bar: options.show_progress_bar,
             level: options.level,
 
             value: 0.,
@@ -165,6 +169,12 @@ impl Toast {
     /// Can use close the toast?
     pub fn set_closable(&mut self, closable: bool) -> &mut Self {
         self.closable = closable;
+        self
+    }
+
+    /// Can show progress bar?
+    pub fn set_show_progress_bar(&mut self, show_progress_bar: bool) -> &mut Self {
+        self.show_progress_bar = show_progress_bar;
         self
     }
 

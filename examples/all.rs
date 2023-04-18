@@ -11,6 +11,7 @@ struct ExampleApp {
     toasts: Toasts,
     caption: String,
     closable: bool,
+    show_progress_bar: bool,
     expires: bool,
     duration: f32,
     dark: bool,
@@ -22,6 +23,7 @@ impl App for ExampleApp {
             ui.text_edit_multiline(&mut self.caption);
             ui.checkbox(&mut self.expires, "Expires");
             ui.checkbox(&mut self.closable, "Closable");
+            ui.checkbox(&mut self.show_progress_bar, "ShowProgressBar");
             if !(self.expires || self.closable) {
                 ui.label("Warning; toasts will have to be closed programatically");
             }
@@ -38,7 +40,9 @@ impl App for ExampleApp {
                 } else {
                     None
                 };
-                t.set_closable(self.closable).set_duration(duration);
+                t.set_closable(self.closable)
+                    .set_duration(duration)
+                    .set_show_progress_bar(self.show_progress_bar);
             };
 
             ui.horizontal(|ui| {
@@ -116,6 +120,7 @@ And another one"#
                 toasts: Toasts::default(),
                 closable: true,
                 expires: true,
+                show_progress_bar: true,
                 duration: 3.5,
                 dark: true,
             })

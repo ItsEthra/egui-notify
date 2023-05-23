@@ -330,15 +330,17 @@ impl Toasts {
             }
 
             // Draw duration
-            if let Some((initial, current)) = toast.duration {
-                if !toast.state.disappearing() {
-                    p.line_segment(
-                        [
-                            rect.min + vec2(0., toast.height),
-                            rect.max - vec2((1. - (current / initial)) * toast.width, 0.),
-                        ],
-                        Stroke::new(4., visuals.fg_stroke.color),
-                    );
+            if toast.show_progress_bar {
+                if let Some((initial, current)) = toast.duration {
+                    if !toast.state.disappearing() {
+                        p.line_segment(
+                            [
+                                rect.min + vec2(0., toast.height),
+                                rect.max - vec2((1. - (current / initial)) * toast.width, 0.),
+                            ],
+                            Stroke::new(4., visuals.fg_stroke.color),
+                        );
+                    }
                 }
             }
 

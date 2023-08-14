@@ -273,8 +273,8 @@ impl Toasts {
                 (0., 0.)
             };
 
-            let icon_x_padding = (0., 7.);
-            let cross_x_padding = (7., 0.);
+            let icon_x_padding = (0., padding.x);
+            let cross_x_padding = (padding.x, 0.);
 
             let icon_width_padded = if icon_width == 0. {
                 0.

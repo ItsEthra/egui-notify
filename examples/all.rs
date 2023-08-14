@@ -3,7 +3,7 @@ use eframe::{
     egui::{Context, Slider, Window},
     App, Frame, NativeOptions,
 };
-use egui::{Style, Visuals};
+use egui::{FontId, Style, Visuals};
 use egui_notify::{Toast, Toasts};
 use std::time::Duration;
 
@@ -14,6 +14,7 @@ struct ExampleApp {
     show_progress_bar: bool,
     expires: bool,
     duration: f32,
+    font_size: f32,
     dark: bool,
 }
 
@@ -32,6 +33,10 @@ impl App for ExampleApp {
                     ui.label("Duration (in s)");
                     ui.add(Slider::new(&mut self.duration, 1.0..=10.0));
                 });
+                ui.horizontal(|ui| {
+                    ui.label("Font size");
+                    ui.add(Slider::new(&mut self.font_size, 8.0..=20.0));
+                });
             });
 
             let customize_toast = |t: &mut Toast| {
@@ -42,7 +47,8 @@ impl App for ExampleApp {
                 };
                 t.set_closable(self.closable)
                     .set_duration(duration)
-                    .set_show_progress_bar(self.show_progress_bar);
+                    .set_show_progress_bar(self.show_progress_bar)
+                    .set_font(FontId::proportional(self.font_size));
             };
 
             ui.horizontal(|ui| {
@@ -123,6 +129,7 @@ And another one"#
                 show_progress_bar: true,
                 duration: 3.5,
                 dark: true,
+                font_size: 16.,
             })
         }),
     )

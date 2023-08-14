@@ -1,5 +1,5 @@
 use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
-use egui::{pos2, vec2, Pos2, Rect};
+use egui::{pos2, vec2, FontId, Pos2, Rect};
 use std::{fmt::Debug, time::Duration};
 
 /// Level of importance
@@ -55,6 +55,7 @@ pub struct ToastOptions {
 pub struct Toast {
     pub(crate) level: ToastLevel,
     pub(crate) caption: String,
+    pub(crate) font: Option<FontId>,
     // (initial, current)
     pub(crate) duration: Option<(f32, f32)>,
     pub(crate) height: f32,
@@ -99,6 +100,7 @@ impl Toast {
 
             value: 0.,
             state: ToastState::Appear,
+            font: None,
         }
     }
 
@@ -163,6 +165,13 @@ impl Toast {
     /// Change the level of the toast
     pub fn set_level(&mut self, level: ToastLevel) -> &mut Self {
         self.level = level;
+        self
+    }
+
+    /// Changes the font used to draw the caption, it takes precedence over the value from
+    /// [`Toasts`].
+    pub fn set_font(&mut self, font: FontId) -> &mut Self {
+        self.font = Some(font);
         self
     }
 

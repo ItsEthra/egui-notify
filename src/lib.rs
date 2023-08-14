@@ -42,6 +42,7 @@ pub struct Toasts {
     padding: Vec2,
     reverse: bool,
     speed: f32,
+    font: Option<FontId>,
 
     held: bool,
 }
@@ -58,6 +59,7 @@ impl Toasts {
             held: false,
             speed: 4.,
             reverse: false,
+            font: None,
         }
     }
 
@@ -149,6 +151,12 @@ impl Toasts {
         self.padding = padding;
         self
     }
+
+    /// Changes the default font used for all toasts.
+    pub fn with_default_font(mut self, font: FontId) -> Self {
+        self.font = Some(font);
+        self
+    }
 }
 
 impl Toasts {
@@ -199,11 +207,19 @@ impl Toasts {
                 }
             }
 
+            let caption_font = toast
+                .font
+                .as_ref()
+                .or(self.font.as_ref())
+                .or(ctx.style().override_font_id.as_ref())
+                .cloned()
+                .unwrap_or_else(|| FontId::proportional(16.));
+
             // Create toast label
             let caption_galley = ctx.fonts(|f| {
                 f.layout(
                     toast.caption.clone(),
-                    FontId::proportional(16.),
+                    caption_font,
                     visuals.fg_stroke.color,
                     f32::INFINITY,
                 )
@@ -257,8 +273,8 @@ impl Toasts {
                 (0., 0.)
             };
 
-            let icon_x_padding = (0., 7.);
-            let cross_x_padding = (7., 0.);
+            let icon_x_padding = (0., padding.x);
+            let cross_x_padding = (padding.x, 0.);
 
             let icon_width_padded = if icon_width == 0. {
                 0.

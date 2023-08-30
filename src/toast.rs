@@ -3,7 +3,7 @@ use egui::{pos2, vec2, FontId, Pos2, Rect};
 use std::{fmt::Debug, time::Duration};
 
 /// Level of importance
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum ToastLevel {
     Info,
@@ -11,6 +11,7 @@ pub enum ToastLevel {
     Error,
     Success,
     None,
+    Custom(String, egui::Color32),
 }
 
 impl Default for ToastLevel {
@@ -149,6 +150,17 @@ impl Toast {
             ToastOptions {
                 closable: false,
                 level: ToastLevel::Error,
+                ..ToastOptions::default()
+            },
+        )
+    }
+
+    /// Creates new custom toast, can be closed by default.
+    pub fn custom(caption: impl Into<String>, level: ToastLevel) -> Self {
+        Self::new(
+            caption,
+            ToastOptions {
+                level,
                 ..ToastOptions::default()
             },
         )

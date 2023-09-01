@@ -77,7 +77,11 @@ impl App for ExampleApp {
                 }
 
                 if ui.button("Custom").clicked() {
-                    customize_toast(self.toasts.custom(self.caption.clone(), self.custom_level_string.clone(), self.custom_level_color));
+                    customize_toast(self.toasts.custom(
+                        self.caption.clone(),
+                        self.custom_level_string.clone(),
+                        self.custom_level_color,
+                    ));
                 }
             });
 

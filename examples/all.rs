@@ -83,6 +83,18 @@ impl App for ExampleApp {
                         self.custom_level_color,
                     ));
                 }
+
+                if ui
+                    .button("Phosphor")
+                    .on_hover_text("This toast uses egui-phosphor icons")
+                    .clicked()
+                {
+                    customize_toast(self.toasts.custom(
+                        self.caption.clone(),
+                        egui_phosphor::regular::FAN.to_owned(),
+                        self.custom_level_color,
+                    ));
+                }
             });
 
             ui.separator();
@@ -124,6 +136,7 @@ fn main() -> eframe::Result<()> {
             cc.egui_ctx.set_style(Style::default());
 
             let mut font_def = FontDefinitions::default();
+            egui_phosphor::add_to_fonts(&mut font_def, egui_phosphor::Variant::Regular);
             for data in font_def.font_data.values_mut() {
                 data.tweak.scale = 1.25;
             }

@@ -122,6 +122,11 @@ impl Toasts {
         self.add(Toast::basic(caption))
     }
 
+    /// Shortcut for adding a toast with custom `level`.
+    pub fn custom(&mut self, caption: impl Into<String>, level_string: String, level_color: egui::Color32) -> &mut Toast {
+        self.add(Toast::custom(caption, ToastLevel::Custom(level_string, level_color)))
+    }
+
     /// Should toasts be added in reverse order?
     pub const fn reverse(mut self, reverse: bool) -> Self {
         self.reverse = reverse;
@@ -233,16 +238,23 @@ impl Toasts {
 
             // Create toast icon
             let icon_font = FontId::proportional(icon_width);
-            let icon_galley = if matches!(toast.level, ToastLevel::Info) {
-                Some(ctx.fonts(|f| f.layout("ℹ".into(), icon_font, INFO_COLOR, f32::INFINITY)))
-            } else if matches!(toast.level, ToastLevel::Warning) {
-                Some(ctx.fonts(|f| f.layout("⚠".into(), icon_font, WARNING_COLOR, f32::INFINITY)))
-            } else if matches!(toast.level, ToastLevel::Error) {
-                Some(ctx.fonts(|f| f.layout("！".into(), icon_font, ERROR_COLOR, f32::INFINITY)))
-            } else if matches!(toast.level, ToastLevel::Success) {
-                Some(ctx.fonts(|f| f.layout("✅".into(), icon_font, SUCCESS_COLOR, f32::INFINITY)))
-            } else {
-                None
+            let icon_galley = match &toast.level {
+                ToastLevel::Info => Some(ctx.fonts(|f| {
+                    f.layout("ℹ".into(), icon_font, INFO_COLOR, f32::INFINITY)
+                })),
+                ToastLevel::Warning => Some(ctx.fonts(|f| {
+                    f.layout("⚠".into(), icon_font, WARNING_COLOR, f32::INFINITY)
+                })),
+                ToastLevel::Error => Some(ctx.fonts(|f| {
+                    f.layout("！".into(), icon_font, ERROR_COLOR, f32::INFINITY)
+                })),
+                ToastLevel::Success => Some(ctx.fonts(|f| {
+                    f.layout("✅".into(), icon_font, SUCCESS_COLOR, f32::INFINITY)
+                })),
+                ToastLevel::Custom(s, c) => Some(ctx.fonts(|f| {
+                    f.layout(s.clone(), icon_font, *c, f32::INFINITY)
+                })),
+                ToastLevel::None => None,
             };
 
             let (action_width, action_height) = if let Some(icon_galley) = icon_galley.as_ref() {

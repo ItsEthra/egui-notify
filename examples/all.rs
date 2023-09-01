@@ -16,6 +16,8 @@ struct ExampleApp {
     duration: f32,
     font_size: f32,
     dark: bool,
+    custom_level_string: String,
+    custom_level_color: egui::Color32,
 }
 
 impl App for ExampleApp {
@@ -38,6 +40,8 @@ impl App for ExampleApp {
                     ui.add(Slider::new(&mut self.font_size, 8.0..=20.0));
                 });
             });
+            ui.text_edit_singleline(&mut self.custom_level_string);
+            ui.color_edit_button_srgba(&mut self.custom_level_color);
 
             let customize_toast = |t: &mut Toast| {
                 let duration = if self.expires {
@@ -70,6 +74,10 @@ impl App for ExampleApp {
 
                 if ui.button("Basic").clicked() {
                     customize_toast(self.toasts.basic(self.caption.clone()));
+                }
+
+                if ui.button("Custom").clicked() {
+                    customize_toast(self.toasts.custom(self.caption.clone(), self.custom_level_string.clone(), self.custom_level_color));
                 }
             });
 
@@ -130,6 +138,8 @@ And another one"#
                 duration: 3.5,
                 dark: true,
                 font_size: 16.,
+                custom_level_string: "$".into(),
+                custom_level_color: egui::Color32::GREEN,
             })
         }),
     )

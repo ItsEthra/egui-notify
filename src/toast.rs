@@ -3,21 +3,16 @@ use egui::{pos2, vec2, FontId, Pos2, Rect};
 use std::{fmt::Debug, time::Duration};
 
 /// Level of importance
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum ToastLevel {
+    #[default]
     Info,
     Warning,
     Error,
     Success,
     None,
     Custom(String, egui::Color32),
-}
-
-impl Default for ToastLevel {
-    fn default() -> Self {
-        ToastLevel::Info
-    }
 }
 
 #[derive(Debug)]

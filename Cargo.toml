@@ -19,4 +19,4 @@ eframe = { version = "0.24", default-features = false, features = [
     "default_fonts",
     "glow",
 ] }
-egui-phosphor = "0.3.0"
+egui-phosphor = { git = "https://github.com/ItsEthra/egui-phosphor", branch = "egui-24" }

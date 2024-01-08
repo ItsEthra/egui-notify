@@ -326,7 +326,7 @@ impl Toasts {
             {
                 let oy = toast.height / 2. - action_height / 2.;
                 let ox = padding.x + icon_x_padding.0;
-                p.galley(rect.min + vec2(ox, oy), icon_galley);
+                p.galley(rect.min + vec2(ox, oy), icon_galley, Color32::BLACK);
             }
 
             // Paint caption
@@ -342,7 +342,7 @@ impl Toasts {
                 cross_width + cross_x_padding.0
             };
             let ox = (toast.width / 2. - caption_width / 2.) + o_from_icon / 2. - o_from_cross / 2.;
-            p.galley(rect.min + vec2(ox, oy), caption_galley);
+            p.galley(rect.min + vec2(ox, oy), caption_galley, Color32::BLACK);
 
             // Paint cross
             if let Some(cross_galley) = cross_galley {
@@ -350,7 +350,7 @@ impl Toasts {
                 let oy = toast.height / 2. - cross_height / 2.;
                 let ox = toast.width - cross_width - cross_x_padding.1 - padding.x;
                 let cross_pos = rect.min + vec2(ox, oy);
-                p.galley(cross_pos, cross_galley);
+                p.galley(cross_pos, cross_galley, Color32::BLACK);
 
                 let screen_cross = Rect {
                     max: cross_pos + cross_rect.max.to_vec2(),

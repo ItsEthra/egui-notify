@@ -1,6 +1,6 @@
 [package]
 name = "egui-notify"
-version = "0.11.0"
+version = "0.12.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/ItsEthra/egui-notify"
@@ -12,11 +12,11 @@ readme = "README.md"
 path = "src/lib.rs"
 
 [dependencies]
-egui = { version = "0.24", default-features = false }
+egui = { version = "0.25", default-features = false }
 
 [dev-dependencies]
-eframe = { version = "0.24", default-features = false, features = [
+eframe = { version = "0.25", default-features = false, features = [
     "default_fonts",
     "glow",
 ] }
-egui-phosphor = { git = "https://github.com/ItsEthra/egui-phosphor", branch = "egui-24" }
+egui-phosphor = { git = "https://github.com/ItsEthra/egui-phosphor", branch = "main" }

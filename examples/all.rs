@@ -142,7 +142,7 @@ fn main() -> eframe::Result<()> {
             }
             cc.egui_ctx.set_fonts(font_def);
 
-            Box::new(ExampleApp {
+            Ok(Box::new(ExampleApp {
                 caption: r#"Hello! It's a multiline caption
 Next line
 Another one
@@ -157,7 +157,7 @@ And another one"#
                 font_size: 16.,
                 custom_level_string: "$".into(),
                 custom_level_color: egui::Color32::GREEN,
-            })
+            }))
         }),
     )
 }

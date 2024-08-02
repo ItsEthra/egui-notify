@@ -49,6 +49,7 @@ pub struct Toasts {
 
 impl Toasts {
     /// Creates new [`Toasts`] instance.
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             anchor: Anchor::TopRight,
@@ -65,15 +66,18 @@ impl Toasts {
 
     /// Adds new toast to the collection.
     /// By default adds toast at the end of the list, can be changed with `self.reverse`.
+    /// # Panics
+    ///
+    /// Will panic if after adding a toast the list is empty.
+    #[must_use]
     pub fn add(&mut self, toast: Toast) -> &mut Toast {
         if self.reverse {
             self.toasts.insert(0, toast);
             return self.toasts.get_mut(0).unwrap();
-        } else {
-            self.toasts.push(toast);
-            let l = self.toasts.len() - 1;
-            return self.toasts.get_mut(l).unwrap();
         }
+        self.toasts.push(toast);
+        let l = self.toasts.len() - 1;
+        return self.toasts.get_mut(l).unwrap();
     }
 
     /// Dismisses the oldest toast
@@ -92,37 +96,43 @@ impl Toasts {
 
     /// Dismisses all toasts
     pub fn dismiss_all_toasts(&mut self) {
-        for toast in self.toasts.iter_mut() {
+        for toast in &mut self.toasts {
             toast.dismiss();
         }
     }
 
     /// Shortcut for adding a toast with info `success`.
+    #[must_use]
     pub fn success(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::success(caption))
     }
 
     /// Shortcut for adding a toast with info `level`.
+    #[must_use]
     pub fn info(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::info(caption))
     }
 
     /// Shortcut for adding a toast with warning `level`.
+    #[must_use]
     pub fn warning(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::warning(caption))
     }
 
     /// Shortcut for adding a toast with error `level`.
+    #[must_use]
     pub fn error(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::error(caption))
     }
 
     /// Shortcut for adding a toast with no level.
+    #[must_use]
     pub fn basic(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::basic(caption))
     }
 
     /// Shortcut for adding a toast with custom `level`.
+    #[must_use]
     pub fn custom(
         &mut self,
         caption: impl Into<String>,
@@ -136,36 +146,42 @@ impl Toasts {
     }
 
     /// Should toasts be added in reverse order?
+    #[must_use]
     pub const fn reverse(mut self, reverse: bool) -> Self {
         self.reverse = reverse;
         self
     }
 
     /// Where toasts should appear.
+    #[must_use]
     pub const fn with_anchor(mut self, anchor: Anchor) -> Self {
         self.anchor = anchor;
         self
     }
 
     /// Sets spacing between adjacent toasts.
+    #[must_use]
     pub const fn with_spacing(mut self, spacing: f32) -> Self {
         self.spacing = spacing;
         self
     }
 
     /// Margin or distance from screen to toasts' bounding boxes
+    #[must_use]
     pub const fn with_margin(mut self, margin: Vec2) -> Self {
         self.margin = margin;
         self
     }
 
     /// Padding or distance from toasts' bounding boxes to inner contents.
+    #[must_use]
     pub const fn with_padding(mut self, padding: Vec2) -> Self {
         self.padding = padding;
         self
     }
 
     /// Changes the default font used for all toasts.
+    #[must_use]
     pub fn with_default_font(mut self, font: FontId) -> Self {
         self.font = Some(font);
         self
@@ -173,6 +189,7 @@ impl Toasts {
 }
 
 impl Toasts {
+    #[allow(clippy::cognitive_complexity, clippy::too_many_lines)]
     /// Displays toast queue
     pub fn show(&mut self, ctx: &Context) {
         let Self {
@@ -195,13 +212,13 @@ impl Toasts {
         toasts.retain(|t| !t.state.disappeared());
 
         // Start disappearing expired toasts
-        toasts.iter_mut().for_each(|t| {
+        for t in toasts.iter_mut() {
             if let Some((_initial_d, current_d)) = t.duration {
                 if current_d <= 0. {
-                    t.state = ToastState::Disapper
+                    t.state = ToastState::Disappear;
                 }
             }
-        });
+        }
 
         // `held` used to prevent sticky removal
         if ctx.input(|i| i.pointer.primary_released()) {
@@ -265,11 +282,10 @@ impl Toasts {
                 ToastLevel::None => None,
             };
 
-            let (action_width, action_height) = if let Some(icon_galley) = icon_galley.as_ref() {
-                (icon_galley.rect.width(), icon_galley.rect.height())
-            } else {
-                (0., 0.)
-            };
+            let (action_width, action_height) =
+                icon_galley.as_ref().map_or((0., 0.), |icon_galley| {
+                    (icon_galley.rect.width(), icon_galley.rect.height())
+                });
 
             // Create closing cross
             let cross_galley = if toast.closable {
@@ -287,11 +303,10 @@ impl Toasts {
                 None
             };
 
-            let (cross_width, cross_height) = if let Some(cross_galley) = cross_galley.as_ref() {
-                (cross_galley.rect.width(), cross_galley.rect.height())
-            } else {
-                (0., 0.)
-            };
+            let (cross_width, cross_height) =
+                cross_galley.as_ref().map_or((0., 0.), |cross_galley| {
+                    (cross_galley.rect.width(), cross_galley.rect.height())
+                });
 
             let icon_x_padding = (0., padding.x);
             let cross_x_padding = (padding.x, 0.);
@@ -307,8 +322,12 @@ impl Toasts {
                 cross_width + cross_x_padding.0 + cross_x_padding.1
             };
 
-            toast.width = icon_width_padded + caption_width + cross_width_padded + (padding.x * 2.);
-            toast.height = action_height.max(caption_height).max(cross_height) + padding.y * 2.;
+            toast.width = padding
+                .x
+                .mul_add(2., icon_width_padded + caption_width + cross_width_padded);
+            toast.height = padding
+                .y
+                .mul_add(2., action_height.max(caption_height).max(cross_height));
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
             pos.x += anim_offset * anchor.anim_side();

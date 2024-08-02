@@ -20,3 +20,13 @@ eframe = { version = "0.28.0", default-features = false, features = [
     "glow",
 ] }
 egui-phosphor = { git = "https://github.com/ItsEthra/egui-phosphor", branch = "main" }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+nursery = { level = "deny", priority = 0 }
+pedantic = { level = "deny", priority = 1 }
+enum_glob_use = { level = "deny", priority = 2 }
+module_name_repetitions = { level = "allow", priority = 3 }
+cast_precision_loss = { level = "allow", priority = 4 }

@@ -6,7 +6,7 @@ Simple notifications library for [`egui`](https://github.com/emilk/egui)
 
 ![example_video](media/toasts_example_video.gif)
 
-# Usage
+## Usage
 
 ```rust
 use egui_notify::Toasts;
@@ -23,14 +23,18 @@ toasts.info("Hello world!").set_duration(Duration::from_secs(5));
 toasts.show(ctx);
 ```
 
-# Installation
+## Installation
+
+```sh
+cargo add egui-notify
+```
 
 ```toml
 [dependencies]
 egui-notify = "0.15.0"
 ```
 
-# Difference to [`egui-toast`](https://github.com/urholaukkarinen/egui-toast)
+## Difference to [`egui-toast`](https://github.com/urholaukkarinen/egui-toast)
 
 ### `egui-notify` has
 

@@ -212,9 +212,16 @@ impl Toasts {
         let mut update = false;
 
         for (i, toast) in toasts.iter_mut().enumerate() {
-            // Decrease duration if idling
+            let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
+            pos.x += anim_offset * anchor.anim_side();
+            let rect = toast.calc_anchored_rect(pos, *anchor);
+
             if let Some((_, d)) = toast.duration.as_mut() {
-                if toast.state.idling() {
+                // Check if we hover over the toast and if true don't decrease the duration
+                let hover_pos = ctx.input(|i| i.pointer.hover_pos());
+                let is_outside_rect = hover_pos.map_or(true, |pos| !rect.contains(pos));
+
+                if is_outside_rect && toast.state.idling() {
                     *d -= ctx.input(|i| i.stable_dt);
                     update = true;
                 }
@@ -309,10 +316,6 @@ impl Toasts {
 
             toast.width = icon_width_padded + caption_width + cross_width_padded + (padding.x * 2.);
             toast.height = action_height.max(caption_height).max(cross_height) + padding.y * 2.;
-
-            let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
-            pos.x += anim_offset * anchor.anim_side();
-            let rect = toast.calc_anchored_rect(pos, *anchor);
 
             // Required due to positioning of the next toast
             pos.x -= anim_offset * anchor.anim_side();

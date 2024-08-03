@@ -15,10 +15,10 @@ pub enum Anchor {
 
 impl Anchor {
     #[inline]
-    pub(crate) fn anim_side(&self) -> f32 {
+    pub(crate) const fn anim_side(&self) -> f32 {
         match self {
-            Anchor::TopRight | Anchor::BottomRight => 1.,
-            Anchor::TopLeft | Anchor::BottomLeft => -1.,
+            Self::TopRight | Self::BottomRight => 1.,
+            Self::TopLeft | Self::BottomLeft => -1.,
         }
     }
 }
@@ -26,10 +26,10 @@ impl Anchor {
 impl Anchor {
     pub(crate) fn screen_corner(&self, sc: Pos2, margin: Vec2) -> Pos2 {
         let mut out = match self {
-            Anchor::TopRight => pos2(sc.x, 0.),
-            Anchor::TopLeft => pos2(0., 0.),
-            Anchor::BottomRight => sc,
-            Anchor::BottomLeft => pos2(0., sc.y),
+            Self::TopRight => pos2(sc.x, 0.),
+            Self::TopLeft => pos2(0., 0.),
+            Self::BottomRight => sc,
+            Self::BottomLeft => pos2(0., sc.y),
         };
         self.apply_margin(&mut out, margin);
         out
@@ -37,19 +37,19 @@ impl Anchor {
 
     pub(crate) fn apply_margin(&self, pos: &mut Pos2, margin: Vec2) {
         match self {
-            Anchor::TopRight => {
+            Self::TopRight => {
                 pos.x -= margin.x;
                 pos.y += margin.y;
             }
-            Anchor::TopLeft => {
+            Self::TopLeft => {
                 pos.x += margin.x;
-                pos.y += margin.y
+                pos.y += margin.y;
             }
-            Anchor::BottomRight => {
+            Self::BottomRight => {
                 pos.x -= margin.x;
                 pos.y -= margin.y;
             }
-            Anchor::BottomLeft => {
+            Self::BottomLeft => {
                 pos.x += margin.x;
                 pos.y -= margin.y;
             }

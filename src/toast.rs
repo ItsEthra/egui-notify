@@ -16,24 +16,36 @@ pub enum ToastLevel {
 }
 
 #[derive(Debug)]
-pub(crate) enum ToastState {
+/// State of the toast
+pub enum ToastState {
+    /// Toast is appearing
     Appear,
-    Disapper,
+    /// Toast is disappearing
+    Disappear,
+    /// Toast has disappeared
     Disappeared,
+    /// Toast is idling
     Idle,
 }
 
 impl ToastState {
-    pub fn appearing(&self) -> bool {
+    /// Returns `true` if the toast is appearing
+    pub const fn appearing(&self) -> bool {
         matches!(self, Self::Appear)
     }
-    pub fn disappearing(&self) -> bool {
-        matches!(self, Self::Disapper)
+
+    /// Returns `true` if the toast is disappearing
+    pub const fn disappearing(&self) -> bool {
+        matches!(self, Self::Disappear)
     }
-    pub fn disappeared(&self) -> bool {
+
+    /// Returns `true` if the toast has disappeared
+    pub const fn disappeared(&self) -> bool {
         matches!(self, Self::Disappeared)
     }
-    pub fn idling(&self) -> bool {
+
+    /// Returns `true` if the toast is idling
+    pub const fn idling(&self) -> bool {
         matches!(self, Self::Idle)
     }
 }
@@ -84,12 +96,10 @@ impl Toast {
             caption: caption.into(),
             height: TOAST_HEIGHT,
             width: TOAST_WIDTH,
-            duration: if let Some(dur) = options.duration {
+            duration: options.duration.map(|dur| {
                 let max_dur = duration_to_seconds_f32(dur);
-                Some((max_dur, max_dur))
-            } else {
-                None
-            },
+                (max_dur, max_dur)
+            }),
             closable: options.closable,
             show_progress_bar: options.show_progress_bar,
             level: options.level,
@@ -161,7 +171,7 @@ impl Toast {
         )
     }
 
-    /// Set the options with a ToastOptions
+    /// Set the options with a [`ToastOptions`]
     pub fn set_options(&mut self, options: ToastOptions) -> &mut Self {
         self.set_closable(options.closable);
         self.set_duration(options.duration);
@@ -219,7 +229,7 @@ impl Toast {
 
     /// Dismiss this toast
     pub fn dismiss(&mut self) {
-        self.state = ToastState::Disapper;
+        self.state = ToastState::Disappear;
     }
 
     pub(crate) fn calc_anchored_rect(&self, pos: Pos2, anchor: Anchor) -> Rect {

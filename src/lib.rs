@@ -49,6 +49,7 @@ pub struct Toasts {
 
 impl Toasts {
     /// Creates new [`Toasts`] instance.
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             anchor: Anchor::TopRight,
@@ -69,11 +70,10 @@ impl Toasts {
         if self.reverse {
             self.toasts.insert(0, toast);
             return self.toasts.get_mut(0).unwrap();
-        } else {
-            self.toasts.push(toast);
-            let l = self.toasts.len() - 1;
-            return self.toasts.get_mut(l).unwrap();
         }
+        self.toasts.push(toast);
+        let l = self.toasts.len() - 1;
+        self.toasts.get_mut(l).unwrap()
     }
 
     /// Dismisses the oldest toast
@@ -92,7 +92,7 @@ impl Toasts {
 
     /// Dismisses all toasts
     pub fn dismiss_all_toasts(&mut self) {
-        for toast in self.toasts.iter_mut() {
+        for toast in &mut self.toasts {
             toast.dismiss();
         }
     }
@@ -195,13 +195,13 @@ impl Toasts {
         toasts.retain(|t| !t.state.disappeared());
 
         // Start disappearing expired toasts
-        toasts.iter_mut().for_each(|t| {
+        for t in toasts.iter_mut() {
             if let Some((_initial_d, current_d)) = t.duration {
                 if current_d <= 0. {
-                    t.state = ToastState::Disapper
+                    t.state = ToastState::Disappear;
                 }
             }
-        });
+        }
 
         // `held` used to prevent sticky removal
         if ctx.input(|i| i.pointer.primary_released()) {
@@ -272,11 +272,10 @@ impl Toasts {
                 ToastLevel::None => None,
             };
 
-            let (action_width, action_height) = if let Some(icon_galley) = icon_galley.as_ref() {
-                (icon_galley.rect.width(), icon_galley.rect.height())
-            } else {
-                (0., 0.)
-            };
+            let (action_width, action_height) =
+                icon_galley.as_ref().map_or((0., 0.), |icon_galley| {
+                    (icon_galley.rect.width(), icon_galley.rect.height())
+                });
 
             // Create closing cross
             let cross_galley = if toast.closable {
@@ -294,11 +293,10 @@ impl Toasts {
                 None
             };
 
-            let (cross_width, cross_height) = if let Some(cross_galley) = cross_galley.as_ref() {
-                (cross_galley.rect.width(), cross_galley.rect.height())
-            } else {
-                (0., 0.)
-            };
+            let (cross_width, cross_height) =
+                cross_galley.as_ref().map_or((0., 0.), |cross_galley| {
+                    (cross_galley.rect.width(), cross_galley.rect.height())
+                });
 
             let icon_x_padding = (0., padding.x);
             let cross_x_padding = (padding.x, 0.);
@@ -314,8 +312,12 @@ impl Toasts {
                 cross_width + cross_x_padding.0 + cross_x_padding.1
             };
 
-            toast.width = icon_width_padded + caption_width + cross_width_padded + (padding.x * 2.);
-            toast.height = action_height.max(caption_height).max(cross_height) + padding.y * 2.;
+            toast.width = padding
+                .x
+                .mul_add(2., icon_width_padded + caption_width + cross_width_padded);
+            toast.height = padding
+                .y
+                .mul_add(2., action_height.max(caption_height).max(cross_height));
 
             // Required due to positioning of the next toast
             pos.x -= anim_offset * anchor.anim_side();

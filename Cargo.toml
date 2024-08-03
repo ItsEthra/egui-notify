@@ -25,8 +25,5 @@ egui-phosphor = { git = "https://github.com/ItsEthra/egui-phosphor", branch = "m
 unsafe_code = "forbid"
 
 [lints.clippy]
-nursery = { level = "deny", priority = 0 }
-pedantic = { level = "deny", priority = 1 }
+all = { level = "deny", priority = 0 }
 enum_glob_use = { level = "deny", priority = 2 }
-module_name_repetitions = { level = "allow", priority = 3 }
-cast_precision_loss = { level = "allow", priority = 4 }

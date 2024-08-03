@@ -30,25 +30,21 @@ pub enum ToastState {
 
 impl ToastState {
     /// Returns `true` if the toast is appearing
-    #[must_use]
     pub const fn appearing(&self) -> bool {
         matches!(self, Self::Appear)
     }
 
     /// Returns `true` if the toast is disappearing
-    #[must_use]
     pub const fn disappearing(&self) -> bool {
         matches!(self, Self::Disappear)
     }
 
     /// Returns `true` if the toast has disappeared
-    #[must_use]
     pub const fn disappeared(&self) -> bool {
         matches!(self, Self::Disappeared)
     }
 
     /// Returns `true` if the toast is idling
-    #[must_use]
     pub const fn idling(&self) -> bool {
         matches!(self, Self::Idle)
     }
@@ -175,7 +171,7 @@ impl Toast {
         )
     }
 
-    /// Set the options with a `ToastOptions`
+    /// Set the options with a [`ToastOptions`]
     pub fn set_options(&mut self, options: ToastOptions) -> &mut Self {
         self.set_closable(options.closable);
         self.set_duration(options.duration);

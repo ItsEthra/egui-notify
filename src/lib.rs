@@ -69,7 +69,6 @@ impl Toasts {
     /// # Panics
     ///
     /// Will panic if after adding a toast the list is empty.
-    #[must_use]
     pub fn add(&mut self, toast: Toast) -> &mut Toast {
         if self.reverse {
             self.toasts.insert(0, toast);
@@ -77,7 +76,7 @@ impl Toasts {
         }
         self.toasts.push(toast);
         let l = self.toasts.len() - 1;
-        return self.toasts.get_mut(l).unwrap();
+        self.toasts.get_mut(l).unwrap()
     }
 
     /// Dismisses the oldest toast
@@ -102,37 +101,31 @@ impl Toasts {
     }
 
     /// Shortcut for adding a toast with info `success`.
-    #[must_use]
     pub fn success(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::success(caption))
     }
 
     /// Shortcut for adding a toast with info `level`.
-    #[must_use]
     pub fn info(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::info(caption))
     }
 
     /// Shortcut for adding a toast with warning `level`.
-    #[must_use]
     pub fn warning(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::warning(caption))
     }
 
     /// Shortcut for adding a toast with error `level`.
-    #[must_use]
     pub fn error(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::error(caption))
     }
 
     /// Shortcut for adding a toast with no level.
-    #[must_use]
     pub fn basic(&mut self, caption: impl Into<String>) -> &mut Toast {
         self.add(Toast::basic(caption))
     }
 
     /// Shortcut for adding a toast with custom `level`.
-    #[must_use]
     pub fn custom(
         &mut self,
         caption: impl Into<String>,
@@ -146,42 +139,36 @@ impl Toasts {
     }
 
     /// Should toasts be added in reverse order?
-    #[must_use]
     pub const fn reverse(mut self, reverse: bool) -> Self {
         self.reverse = reverse;
         self
     }
 
     /// Where toasts should appear.
-    #[must_use]
     pub const fn with_anchor(mut self, anchor: Anchor) -> Self {
         self.anchor = anchor;
         self
     }
 
     /// Sets spacing between adjacent toasts.
-    #[must_use]
     pub const fn with_spacing(mut self, spacing: f32) -> Self {
         self.spacing = spacing;
         self
     }
 
     /// Margin or distance from screen to toasts' bounding boxes
-    #[must_use]
     pub const fn with_margin(mut self, margin: Vec2) -> Self {
         self.margin = margin;
         self
     }
 
     /// Padding or distance from toasts' bounding boxes to inner contents.
-    #[must_use]
     pub const fn with_padding(mut self, padding: Vec2) -> Self {
         self.padding = padding;
         self
     }
 
     /// Changes the default font used for all toasts.
-    #[must_use]
     pub fn with_default_font(mut self, font: FontId) -> Self {
         self.font = Some(font);
         self
@@ -189,7 +176,6 @@ impl Toasts {
 }
 
 impl Toasts {
-    #[allow(clippy::cognitive_complexity, clippy::too_many_lines)]
     /// Displays toast queue
     pub fn show(&mut self, ctx: &Context) {
         let Self {

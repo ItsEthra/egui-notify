@@ -66,9 +66,6 @@ impl Toasts {
 
     /// Adds new toast to the collection.
     /// By default adds toast at the end of the list, can be changed with `self.reverse`.
-    /// # Panics
-    ///
-    /// Will panic if after adding a toast the list is empty.
     pub fn add(&mut self, toast: Toast) -> &mut Toast {
         if self.reverse {
             self.toasts.insert(0, toast);

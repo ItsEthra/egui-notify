@@ -172,40 +172,40 @@ impl Toast {
     }
 
     /// Set the options with a [`ToastOptions`]
-    pub fn set_options(&mut self, options: ToastOptions) -> &mut Self {
-        self.set_closable(options.closable);
-        self.set_duration(options.duration);
-        self.set_level(options.level);
+    pub fn options(&mut self, options: ToastOptions) -> &mut Self {
+        self.closable(options.closable);
+        self.duration(options.duration);
+        self.level(options.level);
         self
     }
 
     /// Change the level of the toast
-    pub fn set_level(&mut self, level: ToastLevel) -> &mut Self {
+    pub fn level(&mut self, level: ToastLevel) -> &mut Self {
         self.level = level;
         self
     }
 
     /// Changes the font used to draw the caption, it takes precedence over the value from
     /// [`Toasts`].
-    pub fn set_font(&mut self, font: FontId) -> &mut Self {
+    pub fn font(&mut self, font: FontId) -> &mut Self {
         self.font = Some(font);
         self
     }
 
-    /// Can use close the toast?
-    pub fn set_closable(&mut self, closable: bool) -> &mut Self {
+    /// Can the user close the toast?
+    pub fn closable(&mut self, closable: bool) -> &mut Self {
         self.closable = closable;
         self
     }
 
     /// Should a progress bar be shown?
-    pub fn set_show_progress_bar(&mut self, show_progress_bar: bool) -> &mut Self {
+    pub fn show_progress_bar(&mut self, show_progress_bar: bool) -> &mut Self {
         self.show_progress_bar = show_progress_bar;
         self
     }
 
     /// In what time should the toast expire? Set to `None` for no expiry.
-    pub fn set_duration(&mut self, duration: Option<Duration>) -> &mut Self {
+    pub fn duration(&mut self, duration: Option<Duration>) -> &mut Self {
         if let Some(duration) = duration {
             let max_dur = duration_to_seconds_f32(duration);
             self.duration = Some((max_dur, max_dur));
@@ -216,13 +216,13 @@ impl Toast {
     }
 
     /// Toast's box height
-    pub fn set_height(&mut self, height: f32) -> &mut Self {
+    pub fn height(&mut self, height: f32) -> &mut Self {
         self.height = height;
         self
     }
 
     /// Toast's box width
-    pub fn set_width(&mut self, width: f32) -> &mut Self {
+    pub fn width(&mut self, width: f32) -> &mut Self {
         self.width = width;
         self
     }

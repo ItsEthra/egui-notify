@@ -18,7 +18,7 @@ let mut toasts = Toasts::default();
 
 ```rust
 // somewhere within [egui::App::update]...
-toasts.info("Hello world!").set_duration(Duration::from_secs(5));
+toasts.info("Hello world!").duration(Duration::from_secs(5));
 // ...
 toasts.show(ctx);
 ```

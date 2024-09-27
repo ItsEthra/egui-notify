@@ -3,7 +3,7 @@ use eframe::{
     egui::{Context, Slider, Window},
     App, Frame, NativeOptions,
 };
-use egui::{FontId, Style, Visuals};
+use egui::{Color32, FontId, Shadow, Style, Visuals};
 use egui_notify::{Toast, Toasts};
 use std::time::Duration;
 
@@ -18,6 +18,7 @@ struct ExampleApp {
     dark: bool,
     custom_level_string: String,
     custom_level_color: egui::Color32,
+    shadow: bool,
 }
 
 impl App for ExampleApp {
@@ -27,6 +28,18 @@ impl App for ExampleApp {
             ui.checkbox(&mut self.expires, "Expires");
             ui.checkbox(&mut self.closable, "Closable");
             ui.checkbox(&mut self.show_progress_bar, "ShowProgressBar");
+            ui.checkbox(&mut self.shadow, "Shadow").clicked().then(|| {
+                self.toasts = if self.shadow {
+                    Toasts::default().with_shadow(Shadow {
+                        offset: Default::default(),
+                        blur: 30.0,
+                        spread: 5.0,
+                        color: Color32::from_black_alpha(70),
+                    })
+                } else {
+                    Toasts::default()
+                };
+            });
             if !(self.expires || self.closable) {
                 ui.label("Warning; toasts will have to be closed programatically");
             }
@@ -157,6 +170,7 @@ And another one"#
                 font_size: 16.,
                 custom_level_string: "$".into(),
                 custom_level_color: egui::Color32::GREEN,
+                shadow: true,
             }))
         }),
     )

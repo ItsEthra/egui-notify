@@ -10,7 +10,9 @@ pub use anchor::*;
 
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
-use egui::{vec2, Color32, Context, FontId, Id, LayerId, Order, Rect, Rounding, Stroke, Vec2};
+use egui::{
+    vec2, Color32, Context, FontId, Id, LayerId, Order, Rect, Rounding, Shadow, Stroke, Vec2,
+};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -43,7 +45,7 @@ pub struct Toasts {
     reverse: bool,
     speed: f32,
     font: Option<FontId>,
-
+    shadow: Option<Shadow>,
     held: bool,
 }
 
@@ -61,6 +63,7 @@ impl Toasts {
             speed: 4.,
             reverse: false,
             font: None,
+            shadow: None,
         }
     }
 
@@ -159,6 +162,12 @@ impl Toasts {
         self
     }
 
+    /// Enables the use of a shadow for toasts.
+    pub const fn with_shadow(mut self, shadow: Shadow) -> Self {
+        self.shadow = Some(shadow);
+        self
+    }
+
     /// Padding or distance from toasts' bounding boxes to inner contents.
     pub const fn with_padding(mut self, padding: Vec2) -> Self {
         self.padding = padding;
@@ -250,6 +259,7 @@ impl Toasts {
 
             let line_count = toast.caption.chars().filter(|c| *c == '\n').count() + 1;
             let icon_width = caption_height / line_count as f32;
+            let rounding = Rounding::same(4.);
 
             // Create toast icon
             let icon_font = FontId::proportional(icon_width);
@@ -322,8 +332,14 @@ impl Toasts {
             // Required due to positioning of the next toast
             pos.x -= anim_offset * anchor.anim_side();
 
+            // Draw shadow
+            if let Some(shadow) = self.shadow {
+                let s = shadow.as_shape(rect, rounding);
+                p.add(s);
+            }
+
             // Draw background
-            p.rect_filled(rect, Rounding::same(4.), visuals.bg_fill);
+            p.rect_filled(rect, rounding, visuals.bg_fill);
 
             // Paint icon
             if let Some((icon_galley, true)) =

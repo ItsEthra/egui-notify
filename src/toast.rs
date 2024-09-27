@@ -205,8 +205,8 @@ impl Toast {
     }
 
     /// In what time should the toast expire? Set to `None` for no expiry.
-    pub fn set_duration(&mut self, duration: Option<Duration>) -> &mut Self {
-        if let Some(duration) = duration {
+    pub fn set_duration(&mut self, duration: impl Into<Option<Duration>>) -> &mut Self {
+        if let Some(duration) = duration.into() {
             let max_dur = duration_to_seconds_f32(duration);
             self.duration = Some((max_dur, max_dur));
         } else {

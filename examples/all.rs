@@ -62,10 +62,10 @@ impl App for ExampleApp {
                 } else {
                     None
                 };
-                t.set_closable(self.closable)
-                    .set_duration(duration)
-                    .set_show_progress_bar(self.show_progress_bar)
-                    .set_font(FontId::proportional(self.font_size));
+                t.closable(self.closable)
+                    .duration(duration)
+                    .show_progress_bar(self.show_progress_bar)
+                    .font(FontId::proportional(self.font_size));
             };
 
             ui.horizontal(|ui| {

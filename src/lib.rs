@@ -31,7 +31,7 @@ const SUCCESS_COLOR: Color32 = Color32::from_rgb(140, 230, 140);
 ///
 /// # egui_notify::__run_test_ctx(|ctx| {
 /// let mut t = Toasts::default();
-/// t.info("Hello, World!").set_duration(Duration::from_secs(5)).set_closable(true);
+/// t.info("Hello, World!").duration(Some(Duration::from_secs(5))).closable(true);
 /// // More app code
 /// t.show(ctx);
 /// # });
@@ -69,6 +69,7 @@ impl Toasts {
 
     /// Adds new toast to the collection.
     /// By default adds toast at the end of the list, can be changed with `self.reverse`.
+    #[allow(clippy::unwrap_used)] // We know that the index is valid
     pub fn add(&mut self, toast: Toast) -> &mut Toast {
         if self.reverse {
             self.toasts.insert(0, toast);

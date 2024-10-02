@@ -41,7 +41,7 @@ impl App for ExampleApp {
                 };
             });
             if !(self.expires || self.closable) {
-                ui.label("Warning; toasts will have to be closed programatically");
+                ui.label("Warning; toasts will have to be closed programmatically");
             }
             ui.add_enabled_ui(self.expires, |ui| {
                 ui.horizontal(|ui| {

@@ -10,9 +10,9 @@ pub use anchor::*;
 
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
-use egui::{
-    vec2, Color32, Context, FontId, Id, LayerId, Order, Rect, Rounding, Shadow, Stroke, Vec2,
-};
+use egui::{vec2, Align, Color32, Context, FontId, FontSelection, Id, LayerId, Order, Rect, RichText, Rounding, Shadow, Stroke, TextWrapMode, Vec2};
+use egui::text::TextWrapping;
+use crate::ToastCaption::{Simple, WidgetText};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -102,34 +102,34 @@ impl Toasts {
     }
 
     /// Shortcut for adding a toast with info `success`.
-    pub fn success(&mut self, caption: impl Into<String>) -> &mut Toast {
+    pub fn success(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
         self.add(Toast::success(caption))
     }
 
     /// Shortcut for adding a toast with info `level`.
-    pub fn info(&mut self, caption: impl Into<String>) -> &mut Toast {
+    pub fn info(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
         self.add(Toast::info(caption))
     }
 
     /// Shortcut for adding a toast with warning `level`.
-    pub fn warning(&mut self, caption: impl Into<String>) -> &mut Toast {
+    pub fn warning(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
         self.add(Toast::warning(caption))
     }
 
     /// Shortcut for adding a toast with error `level`.
-    pub fn error(&mut self, caption: impl Into<String>) -> &mut Toast {
+    pub fn error(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
         self.add(Toast::error(caption))
     }
 
     /// Shortcut for adding a toast with no level.
-    pub fn basic(&mut self, caption: impl Into<String>) -> &mut Toast {
+    pub fn basic(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
         self.add(Toast::basic(caption))
     }
 
     /// Shortcut for adding a toast with custom `level`.
     pub fn custom(
         &mut self,
-        caption: impl Into<String>,
+        caption: impl Into<ToastCaption>,
         level_string: String,
         level_color: egui::Color32,
     ) -> &mut Toast {
@@ -237,28 +237,26 @@ impl Toasts {
                 }
             }
 
-            let caption_font = toast
-                .font
-                .as_ref()
-                .or(self.font.as_ref())
-                .or(ctx.style().override_font_id.as_ref())
-                .cloned()
-                .unwrap_or_else(|| FontId::proportional(16.));
+            let widget_text = match toast.caption {
+                Simple(ref string) => egui::widget_text::WidgetText::from(
+                    RichText::new(string).color(visuals.fg_stroke.color)
+                ),
+                WidgetText(ref widget_text) => widget_text.to_owned()
+            };
 
-            // Create toast label
-            let caption_galley = ctx.fonts(|f| {
-                f.layout(
-                    toast.caption.clone(),
-                    caption_font,
-                    visuals.fg_stroke.color,
-                    f32::INFINITY,
-                )
-            });
+
+            let caption_galley = widget_text.into_galley_impl(
+                ctx,
+                ctx.style().as_ref(),
+                TextWrapping::from_wrap_mode_and_width(TextWrapMode::Extend, f32::INFINITY),
+                FontSelection::Default,
+                Align::LEFT,
+            );
 
             let (caption_width, caption_height) =
                 (caption_galley.rect.width(), caption_galley.rect.height());
 
-            let line_count = toast.caption.chars().filter(|c| *c == '\n').count() + 1;
+            let line_count = toast.caption.text().chars().filter(|c| *c == '\n').count() + 1;
             let icon_width = caption_height / line_count as f32;
             let rounding = Rounding::same(4.);
 

@@ -1,3 +1,7 @@
+# 0.17.0
+* (breaking) removed `Toast::font(font: FontId)`, this can now be done by using `egui::widget_text::RichText` and `RichText::font`
+* Added support for `egui::widget_text::WidgetText` in Toasts, this allows for more customization of the text in the toast.
+
 # 0.16.0
 
 * (breaking) Updated to egui `0.29`.

@@ -274,6 +274,12 @@ impl From<String> for ToastCaption {
     }
 }
 
+impl From<&String> for ToastCaption {
+    fn from(s: &String) -> Self {
+        Self::Simple(s.clone())
+    }
+}
+
 impl From<&str> for ToastCaption {
     fn from(s: &str) -> Self {
         Self::Simple(s.to_owned())

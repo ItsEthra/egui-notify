@@ -8,11 +8,14 @@ pub use toast::*;
 mod anchor;
 pub use anchor::*;
 
+use crate::ToastCaption::{Simple, WidgetText};
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
-use egui::{vec2, Align, Color32, Context, FontId, FontSelection, Id, LayerId, Order, Rect, RichText, Rounding, Shadow, Stroke, TextWrapMode, Vec2};
 use egui::text::TextWrapping;
-use crate::ToastCaption::{Simple, WidgetText};
+use egui::{
+    vec2, Align, Color32, Context, FontId, FontSelection, Id, LayerId, Order, Rect, RichText,
+    Rounding, Shadow, Stroke, TextWrapMode, Vec2,
+};
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
 pub(crate) const TOAST_HEIGHT: f32 = 34.;
@@ -239,11 +242,10 @@ impl Toasts {
 
             let widget_text = match toast.caption {
                 Simple(ref string) => egui::widget_text::WidgetText::from(
-                    RichText::new(string).color(visuals.fg_stroke.color)
+                    RichText::new(string).color(visuals.fg_stroke.color),
                 ),
-                WidgetText(ref widget_text) => widget_text.to_owned()
+                WidgetText(ref widget_text) => widget_text.to_owned(),
             };
-
 
             let caption_galley = widget_text.into_galley_impl(
                 ctx,

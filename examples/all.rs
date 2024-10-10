@@ -90,13 +90,16 @@ impl App for ExampleApp {
                 }
 
                 if ui.button("Rich text").clicked() {
-                    customize_toast(self.toasts.success(
-                        egui::RichText::new(self.caption.clone())
-                            .color(Color32::GREEN)
-                            .background_color(Color32::DARK_GRAY)
-                            .size(self.font_size)
-                            .italics()
-                            .underline()));
+                    customize_toast(
+                        self.toasts.success(
+                            egui::RichText::new(self.caption.clone())
+                                .color(Color32::GREEN)
+                                .background_color(Color32::DARK_GRAY)
+                                .size(self.font_size)
+                                .italics()
+                                .underline(),
+                        ),
+                    );
                 }
 
                 if ui.button("Custom").clicked() {

@@ -8,13 +8,12 @@ pub use toast::*;
 mod anchor;
 pub use anchor::*;
 
-use crate::ToastCaption::{Simple, WidgetText};
 #[doc(hidden)]
 pub use egui::__run_test_ctx;
 use egui::text::TextWrapping;
 use egui::{
-    vec2, Align, Color32, Context, FontId, FontSelection, Id, LayerId, Order, Rect, RichText,
-    Rounding, Shadow, Stroke, TextWrapMode, Vec2,
+    vec2, Align, Color32, Context, FontId, FontSelection, Id, LayerId, Order, Rect, Rounding,
+    Shadow, Stroke, TextWrapMode, Vec2, WidgetText,
 };
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
@@ -105,34 +104,34 @@ impl Toasts {
     }
 
     /// Shortcut for adding a toast with info `success`.
-    pub fn success(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
+    pub fn success(&mut self, caption: impl Into<WidgetText>) -> &mut Toast {
         self.add(Toast::success(caption))
     }
 
     /// Shortcut for adding a toast with info `level`.
-    pub fn info(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
+    pub fn info(&mut self, caption: impl Into<WidgetText>) -> &mut Toast {
         self.add(Toast::info(caption))
     }
 
     /// Shortcut for adding a toast with warning `level`.
-    pub fn warning(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
+    pub fn warning(&mut self, caption: impl Into<WidgetText>) -> &mut Toast {
         self.add(Toast::warning(caption))
     }
 
     /// Shortcut for adding a toast with error `level`.
-    pub fn error(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
+    pub fn error(&mut self, caption: impl Into<WidgetText>) -> &mut Toast {
         self.add(Toast::error(caption))
     }
 
     /// Shortcut for adding a toast with no level.
-    pub fn basic(&mut self, caption: impl Into<ToastCaption>) -> &mut Toast {
+    pub fn basic(&mut self, caption: impl Into<WidgetText>) -> &mut Toast {
         self.add(Toast::basic(caption))
     }
 
     /// Shortcut for adding a toast with custom `level`.
     pub fn custom(
         &mut self,
-        caption: impl Into<ToastCaption>,
+        caption: impl Into<WidgetText>,
         level_string: String,
         level_color: egui::Color32,
     ) -> &mut Toast {
@@ -240,14 +239,7 @@ impl Toasts {
                 }
             }
 
-            let widget_text = match toast.caption {
-                Simple(ref string) => egui::widget_text::WidgetText::from(
-                    RichText::new(string).color(visuals.fg_stroke.color),
-                ),
-                WidgetText(ref widget_text) => widget_text.to_owned(),
-            };
-
-            let caption_galley = widget_text.into_galley_impl(
+            let caption_galley = toast.caption.clone().into_galley_impl(
                 ctx,
                 ctx.style().as_ref(),
                 TextWrapping::from_wrap_mode_and_width(TextWrapMode::Extend, f32::INFINITY),
@@ -348,7 +340,11 @@ impl Toasts {
             {
                 let oy = toast.height / 2. - action_height / 2.;
                 let ox = padding.x + icon_x_padding.0;
-                p.galley(rect.min + vec2(ox, oy), icon_galley, Color32::BLACK);
+                p.galley(
+                    rect.min + vec2(ox, oy),
+                    icon_galley,
+                    visuals.fg_stroke.color,
+                );
             }
 
             // Paint caption
@@ -364,7 +360,11 @@ impl Toasts {
                 cross_width + cross_x_padding.0
             };
             let ox = (toast.width / 2. - caption_width / 2.) + o_from_icon / 2. - o_from_cross / 2.;
-            p.galley(rect.min + vec2(ox, oy), caption_galley, Color32::BLACK);
+            p.galley(
+                rect.min + vec2(ox, oy),
+                caption_galley,
+                visuals.fg_stroke.color,
+            );
 
             // Paint cross
             if let Some(cross_galley) = cross_galley {

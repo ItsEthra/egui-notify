@@ -1,5 +1,5 @@
 use crate::{Anchor, TOAST_HEIGHT, TOAST_WIDTH};
-use egui::{pos2, vec2, Color32, Pos2, Rect, RichText, WidgetText};
+use egui::{pos2, vec2, Color32, Pos2, Rect, WidgetText};
 use std::{fmt::Debug, time::Duration};
 
 /// Level of importance
@@ -58,28 +58,10 @@ pub struct ToastOptions {
     show_progress_bar: bool,
 }
 
-/// Text and text options for a toast
-pub enum ToastCaption {
-    /// Text with default options
-    Simple(String),
-    /// Text with custom options
-    WidgetText(WidgetText),
-}
-
-impl ToastCaption {
-    /// Text within the caption
-    pub fn text(&self) -> &str {
-        match self {
-            Self::Simple(s) => s,
-            Self::WidgetText(wt) => wt.text(),
-        }
-    }
-}
-
 /// Single notification or *toast*
 pub struct Toast {
     pub(crate) level: ToastLevel,
-    pub(crate) caption: ToastCaption,
+    pub(crate) caption: WidgetText,
     // (initial, current)
     pub(crate) duration: Option<(f32, f32)>,
     pub(crate) height: f32,
@@ -107,7 +89,7 @@ fn duration_to_seconds_f32(duration: Duration) -> f32 {
 }
 
 impl Toast {
-    fn new(caption: impl Into<ToastCaption>, options: ToastOptions) -> Self {
+    fn new(caption: impl Into<WidgetText>, options: ToastOptions) -> Self {
         Self {
             caption: caption.into(),
             height: TOAST_HEIGHT,
@@ -125,12 +107,12 @@ impl Toast {
     }
 
     /// Creates new basic toast, can be closed by default.
-    pub fn basic(caption: impl Into<ToastCaption>) -> Self {
+    pub fn basic(caption: impl Into<WidgetText>) -> Self {
         Self::new(caption, ToastOptions::default())
     }
 
     /// Creates new success toast, can be closed by default.
-    pub fn success(caption: impl Into<ToastCaption>) -> Self {
+    pub fn success(caption: impl Into<WidgetText>) -> Self {
         Self::new(
             caption,
             ToastOptions {
@@ -141,7 +123,7 @@ impl Toast {
     }
 
     /// Creates new info toast, can be closed by default.
-    pub fn info(caption: impl Into<ToastCaption>) -> Self {
+    pub fn info(caption: impl Into<WidgetText>) -> Self {
         Self::new(
             caption,
             ToastOptions {
@@ -152,7 +134,7 @@ impl Toast {
     }
 
     /// Creates new warning toast, can be closed by default.
-    pub fn warning(caption: impl Into<ToastCaption>) -> Self {
+    pub fn warning(caption: impl Into<WidgetText>) -> Self {
         Self::new(
             caption,
             ToastOptions {
@@ -163,7 +145,7 @@ impl Toast {
     }
 
     /// Creates new error toast, can not be closed by default.
-    pub fn error(caption: impl Into<ToastCaption>) -> Self {
+    pub fn error(caption: impl Into<WidgetText>) -> Self {
         Self::new(
             caption,
             ToastOptions {
@@ -175,7 +157,7 @@ impl Toast {
     }
 
     /// Creates new custom toast, can be closed by default.
-    pub fn custom(caption: impl Into<ToastCaption>, level: ToastLevel) -> Self {
+    pub fn custom(caption: impl Into<WidgetText>, level: ToastLevel) -> Self {
         Self::new(
             caption,
             ToastOptions {
@@ -265,35 +247,5 @@ impl Toast {
             Anchor::TopRight | Anchor::TopLeft => pos.y += self.height + spacing,
             Anchor::BottomRight | Anchor::BottomLeft => pos.y -= self.height + spacing,
         }
-    }
-}
-
-impl From<String> for ToastCaption {
-    fn from(s: String) -> Self {
-        Self::Simple(s)
-    }
-}
-
-impl From<&String> for ToastCaption {
-    fn from(s: &String) -> Self {
-        Self::Simple(s.clone())
-    }
-}
-
-impl From<&str> for ToastCaption {
-    fn from(s: &str) -> Self {
-        Self::Simple(s.to_owned())
-    }
-}
-
-impl From<WidgetText> for ToastCaption {
-    fn from(wt: WidgetText) -> Self {
-        Self::WidgetText(wt)
-    }
-}
-
-impl From<RichText> for ToastCaption {
-    fn from(text: RichText) -> Self {
-        Self::WidgetText(text.into())
     }
 }

@@ -31,7 +31,7 @@ cargo add egui-notify
 
 ```toml
 [dependencies]
-egui-notify = "0.16.0"
+egui-notify = "0.17.0"
 ```
 
 ## Difference to [`egui-toast`](https://github.com/urholaukkarinen/egui-toast)

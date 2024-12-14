@@ -103,6 +103,16 @@ impl Toasts {
         }
     }
 
+    /// Returns the number of toast items.
+    pub fn len(&self) -> usize {
+        self.toasts.len()
+    }
+
+    /// Returns `true` if there are no toast items.
+    pub fn is_empty(&self) -> bool {
+        self.toasts.is_empty()
+    }
+
     /// Shortcut for adding a toast with info `success`.
     pub fn success(&mut self, caption: impl Into<WidgetText>) -> &mut Toast {
         self.add(Toast::success(caption))

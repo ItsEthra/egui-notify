@@ -163,9 +163,9 @@ fn main() -> eframe::Result<()> {
 
             let mut font_def = FontDefinitions::default();
             egui_phosphor::add_to_fonts(&mut font_def, egui_phosphor::Variant::Regular);
-            for data in font_def.font_data.values_mut() {
-                data.tweak.scale = 1.25;
-            }
+            // for data in font_def.font_data.values_mut() {
+            //     data.tweak.scale = 1.25;
+            // }
             cc.egui_ctx.set_fonts(font_def);
 
             Ok(Box::new(ExampleApp {

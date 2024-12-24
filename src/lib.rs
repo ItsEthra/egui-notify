@@ -211,20 +211,6 @@ impl Toasts {
         let mut pos = anchor.screen_corner(ctx.input(|i| i.screen_rect.max), *margin);
         let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
 
-        let mut dismiss = None;
-
-        // Remove disappeared toasts
-        toasts.retain(|t| !t.state.disappeared());
-
-        // Start disappearing expired toasts
-        for t in toasts.iter_mut() {
-            if let Some((_initial_d, current_d)) = t.duration {
-                if current_d <= 0. {
-                    t.state = ToastState::Disappear;
-                }
-            }
-        }
-
         // `held` used to prevent sticky removal
         if ctx.input(|i| i.pointer.primary_released()) {
             *held = false;
@@ -233,7 +219,14 @@ impl Toasts {
         let visuals = ctx.style().visuals.widgets.noninteractive;
         let mut update = false;
 
-        for (i, toast) in toasts.iter_mut().enumerate() {
+        toasts.retain_mut(|toast| {
+            // Start disappearing expired toasts
+            if let Some((_initial_d, current_d)) = toast.duration {
+                if current_d <= 0. {
+                    toast.state = ToastState::Disappear;
+                }
+            }
+
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
             pos.x += anim_offset * anchor.anim_side();
             let rect = toast.calc_anchored_rect(pos, *anchor);
@@ -391,7 +384,7 @@ impl Toasts {
 
                 if let Some(pos) = ctx.input(|i| i.pointer.press_origin()) {
                     if screen_cross.contains(pos) && !*held {
-                        dismiss = Some(i);
+                        toast.dismiss();
                         *held = true;
                     }
                 }
@@ -431,14 +424,13 @@ impl Toasts {
                     toast.state = ToastState::Disappeared;
                 }
             }
-        }
+
+            // Remove disappeared toasts
+            !toast.state.disappeared()
+        });
 
         if update {
             ctx.request_repaint();
-        }
-
-        if let Some(i) = dismiss {
-            self.toasts[i].dismiss();
         }
     }
 }

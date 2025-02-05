@@ -11,11 +11,14 @@ readme = "README.md"
 [lib]
 path = "src/lib.rs"
 
+[patch.crates-io]
+egui-phosphor = { git = "https://github.com/bircni/egui-phosphor", branch = "patch/egui-version" }
+
 [dependencies]
-egui = { version = "0.30", default-features = false }
+egui = { version = "0.31", default-features = false }
 
 [dev-dependencies]
-eframe = { version = "0.30", default-features = false, features = [
+eframe = { version = "0.31", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",

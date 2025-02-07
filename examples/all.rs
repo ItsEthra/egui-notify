@@ -32,8 +32,8 @@ impl App for ExampleApp {
                 self.toasts = if self.shadow {
                     Toasts::default().with_shadow(Shadow {
                         offset: Default::default(),
-                        blur: 30.0,
-                        spread: 5.0,
+                        blur: 30,
+                        spread: 5,
                         color: Color32::from_black_alpha(70),
                     })
                 } else {

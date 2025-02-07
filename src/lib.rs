@@ -1,4 +1,3 @@
-//! egui-notify
 //! Simple notifications library for egui.
 
 #![warn(missing_docs)]

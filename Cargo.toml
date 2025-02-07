@@ -11,9 +11,6 @@ readme = "README.md"
 [lib]
 path = "src/lib.rs"
 
-[patch.crates-io]
-egui-phosphor = { git = "https://github.com/bircni/egui-phosphor", branch = "patch/egui-version" }
-
 [dependencies]
 egui = { version = "0.31", default-features = false }
 
@@ -24,7 +21,7 @@ eframe = { version = "0.31", default-features = false, features = [
     "x11",
     "wayland",
 ] }
-egui-phosphor = "0.8"
+egui-phosphor = "0.9"
 
 [lints.rust]
 unsafe_code = "forbid"

@@ -4,11 +4,12 @@ use eframe::{
     App, Frame, NativeOptions,
 };
 use egui::{Color32, Shadow, Style, Visuals};
-use egui_notify::{Toast, Toasts};
+use egui_notify::{Anchor, Toast, Toasts};
 use std::time::Duration;
 
 struct ExampleApp {
     toasts: Toasts,
+    anchor: Anchor,
     caption: String,
     closable: bool,
     show_progress_bar: bool,
@@ -52,6 +53,16 @@ impl App for ExampleApp {
                     ui.label("Font size");
                     ui.add(Slider::new(&mut self.font_size, 8.0..=20.0));
                 });
+            });
+            ui.horizontal(|ui| {
+                ui.label("Toast anchor");
+                ui.selectable_value(&mut self.anchor, Anchor::TopLeft, "TopLeft");
+                ui.selectable_value(&mut self.anchor, Anchor::TopMiddle, "TopMiddle");
+                ui.selectable_value(&mut self.anchor, Anchor::TopRight, "TopRight");
+                ui.selectable_value(&mut self.anchor, Anchor::BottomLeft, "BottomLeft");
+                ui.selectable_value(&mut self.anchor, Anchor::BottomMiddle, "BottomMiddle");
+                ui.selectable_value(&mut self.anchor, Anchor::BottomRight, "BottomRight");
+                self.toasts.set_anchor(self.anchor);
             });
             ui.text_edit_singleline(&mut self.custom_level_string);
             ui.color_edit_button_srgba(&mut self.custom_level_color);
@@ -175,6 +186,7 @@ Another one
 And another one"#
                     .into(),
                 toasts: Toasts::default(),
+                anchor: Anchor::BottomLeft,
                 closable: true,
                 expires: true,
                 show_progress_bar: true,

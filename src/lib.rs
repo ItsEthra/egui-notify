@@ -191,6 +191,11 @@ impl Toasts {
         self.font = Some(font);
         self
     }
+
+    /// Changes the position where toasts appear
+    pub fn set_anchor(&mut self, anchor: Anchor) {
+        self.anchor = anchor;
+    }
 }
 
 impl Toasts {

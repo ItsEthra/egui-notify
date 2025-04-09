@@ -238,7 +238,7 @@ impl Toasts {
             if let Some((_, d)) = toast.duration.as_mut() {
                 // Check if we hover over the toast and if true don't decrease the duration
                 let hover_pos = ctx.input(|i| i.pointer.hover_pos());
-                let is_outside_rect = hover_pos.map_or(true, |pos| !rect.contains(pos));
+                let is_outside_rect = hover_pos.is_none_or(|pos| !rect.contains(pos));
 
                 if is_outside_rect && toast.state.idling() {
                     *d -= ctx.input(|i| i.stable_dt);

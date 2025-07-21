@@ -18,7 +18,7 @@ let mut toasts = Toasts::default();
 
 ```rust
 // somewhere within [egui::App::update]...
-toasts.info("Hello world!").duration(Duration::from_secs(5));
+toasts.info("Hello world!").duration(Some(Duration::from_secs(5)));
 // ...
 toasts.show(ctx);
 ```
@@ -31,7 +31,7 @@ cargo add egui-notify
 
 ```toml
 [dependencies]
-egui-notify = "0.17.0"
+egui-notify = "0.19.0"
 ```
 
 ## Difference to [`egui-toast`](https://github.com/urholaukkarinen/egui-toast)

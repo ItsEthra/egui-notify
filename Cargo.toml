@@ -1,6 +1,6 @@
 [package]
 name = "egui-notify"
-version = "0.19.0"
+version = "0.20.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/ItsEthra/egui-notify"
@@ -12,16 +12,16 @@ readme = "README.md"
 path = "src/lib.rs"
 
 [dependencies]
-egui = { version = "0.31", default-features = false }
+egui = { version = "0.32", default-features = false }
 
 [dev-dependencies]
-eframe = { version = "0.31", default-features = false, features = [
+eframe = { version = "0.32", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",
     "wayland",
 ] }
-egui-phosphor = "0.9"
+egui-phosphor = "0.10.0"
 
 [lints.rust]
 unsafe_code = "forbid"

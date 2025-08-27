@@ -231,6 +231,13 @@ impl Toast {
                 min: pos,
                 max: pos + vec2(self.width, self.height),
             },
+            Anchor::Top => {
+                // Center horizontally around pos.x
+                Rect {
+                    min: pos2(pos.x - self.width * 0.5, pos.y),
+                    max: pos2(pos.x + self.width * 0.5, pos.y + self.height),
+                }
+            }
             Anchor::BottomRight => Rect {
                 min: pos - vec2(self.width, self.height),
                 max: pos,
@@ -239,13 +246,26 @@ impl Toast {
                 min: pos2(pos.x, pos.y - self.height),
                 max: pos2(pos.x + self.width, pos.y),
             },
+            Anchor::Bottom => Rect {
+                min: pos2(pos.x - self.width * 0.5, pos.y - self.height),
+                max: pos2(pos.x + self.width * 0.5, pos.y),
+            },
+            Anchor::Left => Rect {
+                min: pos2(pos.x, pos.y - self.height * 0.5),
+                max: pos2(pos.x + self.width, pos.y + self.height * 0.5),
+            },
+            Anchor::Right => Rect {
+                min: pos2(pos.x - self.width, pos.y - self.height * 0.5),
+                max: pos2(pos.x, pos.y + self.height * 0.5),
+            },
         }
     }
 
     pub(crate) fn adjust_next_pos(&self, pos: &mut Pos2, anchor: Anchor, spacing: f32) {
         match anchor {
-            Anchor::TopRight | Anchor::TopLeft => pos.y += self.height + spacing,
-            Anchor::BottomRight | Anchor::BottomLeft => pos.y -= self.height + spacing,
+            Anchor::TopRight | Anchor::TopLeft | Anchor::Top => pos.y += self.height + spacing,
+            Anchor::BottomRight | Anchor::BottomLeft | Anchor::Bottom => pos.y -= self.height + spacing,
+            Anchor::Left | Anchor::Right => pos.y += self.height + spacing, // vertical stacking
         }
     }
 }

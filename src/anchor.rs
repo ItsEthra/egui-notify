@@ -7,10 +7,18 @@ pub enum Anchor {
     TopRight,
     /// Top left corner.
     TopLeft,
+    /// Top centered horizontally.
+    Top,
     /// Bottom right corner.
     BottomRight,
     /// Bottom left corner
     BottomLeft,
+    /// Bottom centered horizontally.
+    Bottom,
+    /// Left side vertically centered.
+    Left,
+    /// Right side vertically centered.
+    Right,
 }
 
 impl Anchor {
@@ -19,6 +27,7 @@ impl Anchor {
         match self {
             Self::TopRight | Self::BottomRight => 1.,
             Self::TopLeft | Self::BottomLeft => -1.,
+            Self::Top | Self::Bottom | Self::Left | Self::Right => 0.,
         }
     }
 }
@@ -28,8 +37,12 @@ impl Anchor {
         let mut out = match self {
             Self::TopRight => pos2(sc.x, 0.),
             Self::TopLeft => pos2(0., 0.),
+            Self::Top => pos2(sc.x * 0.5, 0.),
             Self::BottomRight => sc,
             Self::BottomLeft => pos2(0., sc.y),
+            Self::Bottom => pos2(sc.x * 0.5, sc.y),
+            Self::Left => pos2(0., sc.y * 0.5),
+            Self::Right => pos2(sc.x, sc.y * 0.5),
         };
         self.apply_margin(&mut out, margin);
         out
@@ -45,6 +58,9 @@ impl Anchor {
                 pos.x += margin.x;
                 pos.y += margin.y;
             }
+            Self::Top => {
+                pos.y += margin.y;
+            }
             Self::BottomRight => {
                 pos.x -= margin.x;
                 pos.y -= margin.y;
@@ -52,6 +68,15 @@ impl Anchor {
             Self::BottomLeft => {
                 pos.x += margin.x;
                 pos.y -= margin.y;
+            }
+            Self::Bottom => {
+                pos.y -= margin.y;
+            }
+            Self::Left => {
+                pos.x += margin.x;
+            }
+            Self::Right => {
+                pos.x -= margin.x;
             }
         }
     }

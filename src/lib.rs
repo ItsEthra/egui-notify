@@ -333,8 +333,31 @@ impl Toasts {
                 p.add(s);
             }
 
-            // Draw background
+            // Draw background + white border
             p.rect_filled(rect, rounding, visuals.bg_fill);
+            {
+                let stroke = Stroke { width: 1.0, color: Color32::WHITE };
+                // Top
+                p.line_segment([
+                    rect.min,
+                    egui::pos2(rect.max.x, rect.min.y)
+                ], stroke);
+                // Bottom
+                p.line_segment([
+                    egui::pos2(rect.min.x, rect.max.y),
+                    rect.max
+                ], stroke);
+                // Left
+                p.line_segment([
+                    rect.min,
+                    egui::pos2(rect.min.x, rect.max.y)
+                ], stroke);
+                // Right
+                p.line_segment([
+                    egui::pos2(rect.max.x, rect.min.y),
+                    rect.max
+                ], stroke);
+            }
 
             // Paint icon
             if let Some((icon_galley, true)) =

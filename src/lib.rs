@@ -232,7 +232,12 @@ impl Toasts {
             }
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
-            pos.x += anim_offset * anchor.anim_side();
+            match anchor {
+                Anchor::TopMiddle | Anchor::BottomMiddle => {
+                    pos.y += anim_offset * anchor.anim_side()
+                }
+                _ => pos.x += anim_offset * anchor.anim_side(),
+            }
             let rect = toast.calc_anchored_rect(pos, *anchor);
 
             if let Some((_, d)) = toast.duration.as_mut() {
@@ -333,7 +338,12 @@ impl Toasts {
                 .mul_add(2., action_height.max(caption_height).max(cross_height));
 
             // Required due to positioning of the next toast
-            pos.x -= anim_offset * anchor.anim_side();
+            match anchor {
+                Anchor::TopMiddle | Anchor::BottomMiddle => {
+                    pos.y -= anim_offset * anchor.anim_side()
+                }
+                _ => pos.x -= anim_offset * anchor.anim_side(),
+            }
 
             // Draw shadow
             if let Some(shadow) = self.shadow {

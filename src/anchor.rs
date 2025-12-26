@@ -21,8 +21,8 @@ impl Anchor {
     #[inline]
     pub(crate) const fn anim_side(&self) -> f32 {
         match self {
-            Self::TopRight | Self::BottomRight | Self::TopMiddle | Self::BottomMiddle => 1.,
-            Self::TopLeft | Self::BottomLeft => -1.,
+            Self::TopRight | Self::BottomRight | Self::BottomMiddle => 1.,
+            Self::TopLeft | Self::BottomLeft | Self::TopMiddle => -1.,
         }
     }
 }

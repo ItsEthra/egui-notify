@@ -11,8 +11,8 @@ pub use anchor::*;
 pub use egui::__run_test_ctx;
 use egui::text::TextWrapping;
 use egui::{
-    vec2, Align, Color32, Context, CornerRadius, FontId, FontSelection, Id, LayerId, Order, Rect,
-    Shadow, Stroke, TextWrapMode, Vec2, WidgetText,
+    pos2, vec2, Align, Color32, Context, CornerRadius, FontId, FontSelection, Id, LayerId, Order,
+    Rect, Shadow, Stroke, TextWrapMode, Vec2, WidgetText,
 };
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
@@ -414,7 +414,10 @@ impl Toasts {
                         p.line_segment(
                             [
                                 rect.min + vec2(0., toast.height),
-                                rect.max - vec2((1. - (current / initial)) * toast.width, 0.),
+                                pos2(
+                                    rect.max.x - (1. - (current / initial)) * toast.width,
+                                    rect.min.y + toast.height,
+                                ),
                             ],
                             Stroke::new(4., visuals.fg_stroke.color),
                         );

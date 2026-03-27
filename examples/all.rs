@@ -150,18 +150,20 @@ impl App for ExampleApp {
             if ui.radio(self.dark, "Toggle dark theme").clicked() {
                 self.dark = !self.dark;
 
-                let mut style = ctx.style().as_ref().clone();
+                let mut style = ctx.global_style().as_ref().clone();
                 if self.dark {
                     style.visuals = Visuals::dark();
                 } else {
                     style.visuals = Visuals::light();
                 }
-                ctx.set_style(style);
+                ctx.set_global_style(style);
             }
         });
 
         self.toasts.show(ctx);
     }
+
+    fn ui(&mut self, _ui: &mut egui::Ui, _frame: &mut Frame) {}
 }
 
 fn main() -> eframe::Result<()> {
@@ -169,7 +171,7 @@ fn main() -> eframe::Result<()> {
         "example",
         NativeOptions::default(),
         Box::new(|cc| {
-            cc.egui_ctx.set_style(Style::default());
+            cc.egui_ctx.set_global_style(Style::default());
 
             let mut font_def = FontDefinitions::default();
             egui_phosphor::add_to_fonts(&mut font_def, egui_phosphor::Variant::Regular);

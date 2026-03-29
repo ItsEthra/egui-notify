@@ -11,8 +11,8 @@ pub use anchor::*;
 pub use egui::__run_test_ctx;
 use egui::text::TextWrapping;
 use egui::{
-    vec2, Align, Color32, Context, CornerRadius, FontId, FontSelection, Id, LayerId, Order, Rect,
-    Shadow, Stroke, TextWrapMode, Vec2, WidgetText,
+    pos2, vec2, Align, Color32, Context, CornerRadius, FontId, FontSelection, Id, LayerId, Order,
+    Rect, Shadow, Stroke, TextWrapMode, Vec2, WidgetText,
 };
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
@@ -191,6 +191,11 @@ impl Toasts {
         self.font = Some(font);
         self
     }
+
+    /// Changes the position where toasts appear
+    pub fn set_anchor(&mut self, anchor: Anchor) {
+        self.anchor = anchor;
+    }
 }
 
 impl Toasts {
@@ -227,7 +232,12 @@ impl Toasts {
             }
 
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
-            pos.x += anim_offset * anchor.anim_side();
+            match anchor {
+                Anchor::TopMiddle | Anchor::BottomMiddle => {
+                    pos.y += anim_offset * anchor.anim_side()
+                }
+                _ => pos.x += anim_offset * anchor.anim_side(),
+            }
             let rect = toast.calc_anchored_rect(pos, *anchor);
 
             if let Some((_, d)) = toast.duration.as_mut() {
@@ -328,7 +338,12 @@ impl Toasts {
                 .mul_add(2., action_height.max(caption_height).max(cross_height));
 
             // Required due to positioning of the next toast
-            pos.x -= anim_offset * anchor.anim_side();
+            match anchor {
+                Anchor::TopMiddle | Anchor::BottomMiddle => {
+                    pos.y -= anim_offset * anchor.anim_side()
+                }
+                _ => pos.x -= anim_offset * anchor.anim_side(),
+            }
 
             // Draw shadow
             if let Some(shadow) = self.shadow {
@@ -399,7 +414,10 @@ impl Toasts {
                         p.line_segment(
                             [
                                 rect.min + vec2(0., toast.height),
-                                rect.max - vec2((1. - (current / initial)) * toast.width, 0.),
+                                pos2(
+                                    rect.max.x - (1. - (current / initial)) * toast.width,
+                                    rect.min.y + toast.height,
+                                ),
                             ],
                             Stroke::new(4., visuals.fg_stroke.color),
                         );

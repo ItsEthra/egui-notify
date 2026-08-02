@@ -41,6 +41,6 @@ egui-notify = "*" # replace with the latest version
 - Animations for appearing/disappearing toasts
 - Duration meter for expiring toasts
 - Toast positioning not influenced by which `Context` you pass to it (like if for example, you passed in a `Context` already altered for an `egui::Window`)
-- Differing methodology (create `Toasts` instance once, save save somewhere in application state)
+- Differing methodology (create `Toasts` instance once, and save somewhere in application state)
 - Threadsafe `Toasts` instance, implements `Send`, `Sync`.
 - No support for custom toasts

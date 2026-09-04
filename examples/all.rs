@@ -22,7 +22,7 @@ struct ExampleApp {
 }
 
 impl App for ExampleApp {
-    fn update(&mut self, ctx: &Context, _: &mut Frame) {
+    fn logic(&mut self, ctx: &Context, _: &mut Frame) {
         Window::new("Controls").show(ctx, |ui| {
             ui.text_edit_multiline(&mut self.caption);
             ui.checkbox(&mut self.expires, "Expires");

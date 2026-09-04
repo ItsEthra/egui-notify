@@ -1,6 +1,6 @@
 [package]
 name = "egui-notify"
-version = "0.22.0"
+version = "0.23.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/ItsEthra/egui-notify"
@@ -12,16 +12,16 @@ readme = "README.md"
 path = "src/lib.rs"
 
 [dependencies]
-egui = { version = "0.34", default-features = false }
+egui = { version = "0.36", default-features = false }
 
 [dev-dependencies]
-eframe = { version = "0.34", default-features = false, features = [
+eframe = { version = "0.36", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",
     "wayland",
 ] }
-egui-phosphor = { git = "https://github.com/ItsEthra/egui-phosphor.git", branch = "egui-0.34" }
+egui-phosphor = { git = "https://github.com/UnknownSuperficialNight/egui-phosphor.git", commit = "d392183fe3766d49a78e4fce249e73777985119a" }
 
 [lints.rust]
 unsafe_code = "forbid"

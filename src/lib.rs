@@ -11,8 +11,8 @@ pub use anchor::*;
 pub use egui::__run_test_ctx;
 use egui::text::TextWrapping;
 use egui::{
-    vec2, Align, Color32, Context, CornerRadius, FontId, FontSelection, Id, LayerId, Order, Rect,
-    Shadow, Stroke, TextWrapMode, Vec2, WidgetText,
+    vec2, Align, Area, Color32, Context, CornerRadius, FontId, FontSelection, Id, Order, Rect,
+    Shadow, Stroke, StrokeKind, TextWrapMode, Vec2, WidgetText,
 };
 
 pub(crate) const TOAST_WIDTH: f32 = 180.;
@@ -47,6 +47,8 @@ pub struct Toasts {
     speed: f32,
     font: Option<FontId>,
     shadow: Option<Shadow>,
+    fill: Option<Color32>,
+    stroke: Option<Stroke>,
     held: bool,
 }
 
@@ -64,6 +66,8 @@ impl Toasts {
             speed: 4.,
             reverse: false,
             font: None,
+            fill: None,
+            stroke: None,
             shadow: None,
         }
     }
@@ -191,6 +195,18 @@ impl Toasts {
         self.font = Some(font);
         self
     }
+
+    /// The fill or background color for toasts.
+    pub fn with_fill(mut self, fill: impl Into<Color32>) -> Self {
+        self.fill = Some(fill.into());
+        self
+    }
+
+    /// Enables the use of a stroke for toasts.
+    pub fn with_stroke(mut self, stroke: impl Into<Stroke>) -> Self {
+        self.stroke = Some(stroke.into());
+        self
+    }
 }
 
 impl Toasts {
@@ -208,7 +224,6 @@ impl Toasts {
         } = self;
 
         let mut pos = anchor.screen_corner(ctx.input(|i| i.content_rect().max), *margin);
-        let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
 
         // `held` used to prevent sticky removal
         if ctx.input(|i| i.pointer.primary_released()) {
@@ -217,6 +232,8 @@ impl Toasts {
 
         let visuals = ctx.global_style().visuals.widgets.noninteractive;
         let mut update = false;
+
+        let mut idx = 0usize;
 
         toasts.retain_mut(|toast| {
             // Start disappearing expired toasts
@@ -229,17 +246,6 @@ impl Toasts {
             let anim_offset = toast.width * (1. - ease_in_cubic(toast.value));
             pos.x += anim_offset * anchor.anim_side();
             let rect = toast.calc_anchored_rect(pos, *anchor);
-
-            if let Some((_, d)) = toast.duration.as_mut() {
-                // Check if we hover over the toast and if true don't decrease the duration
-                let hover_pos = ctx.input(|i| i.pointer.hover_pos());
-                let is_outside_rect = hover_pos.is_none_or(|pos| !rect.contains(pos));
-
-                if is_outside_rect && toast.state.idling() {
-                    *d -= ctx.input(|i| i.stable_dt);
-                    update = true;
-                }
-            }
 
             let caption_galley = toast.caption.clone().into_galley_impl(
                 ctx,
@@ -286,20 +292,16 @@ impl Toasts {
                 });
 
             // Create closing cross
-            let cross_galley = if toast.closable {
-                let cross_fid = FontId::proportional(icon_width);
-                let cross_galley = ctx.fonts_mut(|f| {
+            let cross_galley = toast.closable.then(|| {
+                ctx.fonts_mut(|f| {
                     f.layout(
                         "❌".into(),
-                        cross_fid,
+                        FontId::proportional(icon_width),
                         visuals.fg_stroke.color,
                         f32::INFINITY,
                     )
-                });
-                Some(cross_galley)
-            } else {
-                None
-            };
+                })
+            });
 
             let (cross_width, cross_height) =
                 cross_galley.as_ref().map_or((0., 0.), |cross_galley| {
@@ -330,80 +332,119 @@ impl Toasts {
             // Required due to positioning of the next toast
             pos.x -= anim_offset * anchor.anim_side();
 
-            // Draw shadow
-            if let Some(shadow) = self.shadow {
-                let s = shadow.as_shape(rect, rounding);
-                p.add(s);
-            }
+            let area_response = Area::new(Id::new("toasts").with(idx))
+                .order(Order::Foreground)
+                .fixed_pos(rect.min)
+                .interactable(true)
+                .show(ctx, |ui| {
+                    ui.set_min_size(rect.size());
+                    let p = ui.painter();
 
-            // Draw background
-            p.rect_filled(rect, rounding, visuals.bg_fill);
-
-            // Paint icon
-            if let Some((icon_galley, true)) =
-                icon_galley.zip(Some(toast.level != ToastLevel::None))
-            {
-                let oy = toast.height / 2. - action_height / 2.;
-                let ox = padding.x + icon_x_padding.0;
-                p.galley(
-                    rect.min + vec2(ox, oy),
-                    icon_galley,
-                    visuals.fg_stroke.color,
-                );
-            }
-
-            // Paint caption
-            let oy = toast.height / 2. - caption_height / 2.;
-            let o_from_icon = if action_width == 0. {
-                0.
-            } else {
-                action_width + icon_x_padding.1
-            };
-            let o_from_cross = if cross_width == 0. {
-                0.
-            } else {
-                cross_width + cross_x_padding.0
-            };
-            let ox = (toast.width / 2. - caption_width / 2.) + o_from_icon / 2. - o_from_cross / 2.;
-            p.galley(
-                rect.min + vec2(ox, oy),
-                caption_galley,
-                visuals.fg_stroke.color,
-            );
-
-            // Paint cross
-            if let Some(cross_galley) = cross_galley {
-                let cross_rect = cross_galley.rect;
-                let oy = toast.height / 2. - cross_height / 2.;
-                let ox = toast.width - cross_width - cross_x_padding.1 - padding.x;
-                let cross_pos = rect.min + vec2(ox, oy);
-                p.galley(cross_pos, cross_galley, Color32::BLACK);
-
-                let screen_cross = Rect {
-                    max: cross_pos + cross_rect.max.to_vec2(),
-                    min: cross_pos,
-                };
-
-                if let Some(pos) = ctx.input(|i| i.pointer.press_origin()) {
-                    if screen_cross.contains(pos) && !*held {
-                        toast.dismiss();
-                        *held = true;
+                    // Draw shadow
+                    if let Some(shadow) = self.shadow {
+                        p.with_clip_rect(ctx.content_rect())
+                            .add(shadow.as_shape(rect, rounding));
                     }
-                }
-            }
 
-            // Draw duration
-            if toast.show_progress_bar {
-                if let Some((initial, current)) = toast.duration {
-                    if !toast.state.disappearing() {
-                        p.line_segment(
-                            [
-                                rect.min + vec2(0., toast.height),
-                                rect.max - vec2((1. - (current / initial)) * toast.width, 0.),
-                            ],
-                            Stroke::new(4., visuals.fg_stroke.color),
+                    // Draw stroke
+                    if let Some(stroke) = self.stroke {
+                        p.with_clip_rect(ctx.content_rect()).rect_stroke(
+                            rect,
+                            rounding,
+                            stroke,
+                            StrokeKind::Outside,
                         );
                     }
+
+                    // Draw background
+                    p.rect_filled(rect, rounding, self.fill.unwrap_or(visuals.bg_fill));
+
+                    // Paint icon
+                    if let Some(icon_galley) =
+                        icon_galley.filter(|_| toast.level != ToastLevel::None)
+                    {
+                        let oy = toast.height / 2. - action_height / 2.;
+                        let ox = padding.x + icon_x_padding.0;
+                        p.galley(
+                            rect.min + vec2(ox, oy),
+                            icon_galley,
+                            visuals.fg_stroke.color,
+                        );
+                    }
+
+                    // Paint caption
+                    let oy = toast.height / 2. - caption_height / 2.;
+                    let o_from_icon = if action_width == 0. {
+                        0.
+                    } else {
+                        action_width + icon_x_padding.1
+                    };
+                    let o_from_cross = if cross_width == 0. {
+                        0.
+                    } else {
+                        cross_width + cross_x_padding.0
+                    };
+                    let ox = (toast.width / 2. - caption_width / 2.) + o_from_icon / 2.
+                        - o_from_cross / 2.;
+                    p.galley(
+                        rect.min + vec2(ox, oy),
+                        caption_galley,
+                        visuals.fg_stroke.color,
+                    );
+
+                    // Paint cross
+                    if let Some(cross_galley) = cross_galley {
+                        let cross_rect = cross_galley.rect;
+                        let oy = toast.height / 2. - cross_height / 2.;
+                        let ox = toast.width - cross_width - cross_x_padding.1 - padding.x;
+                        let cross_pos = rect.min + vec2(ox, oy);
+                        p.galley(cross_pos, cross_galley, Color32::BLACK);
+
+                        let screen_cross = Rect {
+                            max: cross_pos + cross_rect.max.to_vec2(),
+                            min: cross_pos,
+                        };
+
+                        if let Some(pos) = ctx.input(|i| i.pointer.press_origin()) {
+                            if screen_cross.contains(pos) && !*held {
+                                toast.dismiss();
+                                *held = true;
+                            }
+                        }
+                    }
+
+                    // Draw duration
+                    if toast.show_progress_bar {
+                        if let Some((initial, current)) = toast.duration {
+                            if !toast.state.disappearing() {
+                                let rounding = CornerRadius {
+                                    nw: 0,
+                                    ne: 0,
+                                    ..rounding
+                                };
+
+                                let mut clip_rect = rect;
+                                clip_rect.set_top(clip_rect.bottom() - 2.0);
+                                clip_rect.set_right(
+                                    rect.max.x - (1. - (current / initial)) * toast.width,
+                                );
+
+                                ui.painter().with_clip_rect(clip_rect).rect_filled(
+                                    rect,
+                                    rounding,
+                                    visuals.fg_stroke.color,
+                                );
+                            }
+                        }
+                    }
+                });
+
+            idx += 1;
+
+            if let Some((_, d)) = toast.duration.as_mut() {
+                if !area_response.response.contains_pointer() && toast.state.idling() {
+                    *d -= ctx.input(|i| i.stable_dt);
+                    update = true;
                 }
             }
 

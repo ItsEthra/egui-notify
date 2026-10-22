@@ -21,7 +21,7 @@ eframe = { version = "0.37", default-features = false, features = [
     "x11",
     "wayland",
 ] }
-egui-phosphor = { git = "https://github.com/UnknownSuperficialNight/egui-phosphor.git", commit = "9f59d7cc83091345b250cb438986760096d5cc15" }
+egui-phosphor = { git = "https://github.com/UnknownSuperficialNight/egui-phosphor.git", rev = "9f59d7cc83091345b250cb438986760096d5cc15" }
 
 [lints.rust]
 unsafe_code = "forbid"

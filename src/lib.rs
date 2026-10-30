@@ -208,7 +208,7 @@ impl Toasts {
         } = self;
 
         let mut pos = anchor.screen_corner(ctx.input(|i| i.content_rect().max), *margin);
-        let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("toasts")));
+        let p = ctx.layer_painter(LayerId::new(Order::Foreground, Id::unique("egui-notify")));
 
         // `held` used to prevent sticky removal
         if ctx.input(|i| i.pointer.primary_released()) {
